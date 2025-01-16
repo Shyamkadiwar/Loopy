@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String     @id @default(uuid())
+  username          String     @unique
+  email             String     @unique
+  password_hash     String?
+  bio               String?
+  profile_picture   String?
+  reputation_points Int?
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+  snippets          Snippet[]
+  reuse             Reuse[]
+  questions         Question[]
+  answers           Answer[]
+  votes             Vote[]
+  comments          Comment[]
+}
+
+model Snippet {
+  id          String       @id @default(uuid())
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  title       String
+  code        String
+  description String
+  visibility  String // values: public, private, shared
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  tags        SnippetTag[]
+  comments    Comment[]
+}
+
+model Tag {
+  id       String       @id @default(uuid())
+  name     String
+  snippets SnippetTag[]
+}
+
+model SnippetTag {
+  id         String  @id @default(uuid())
+  snippet    Snippet @relation(fields: [snippet_id], references: [id], onDelete: Cascade)
+  snippet_id String
+  tag        Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  tag_id     String
+  Reuse      Reuse?  @relation(fields: [reuseId], references: [id])
+  reuseId    String?
+}
+
+model Question {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  title       String
+  description String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  answers     Answer[]
+  comments    Comment[]
+}
+
+model Answer {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  question    Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  question_id String
+  answer_text String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+  votes       Vote[]
+}
+
+model Comment {
+  id               String    @id @default(uuid())
+  user             User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id          String
+  comment_text     String
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  commentable_id   String
+  commentable_type String // Snippet, Question, Answer
+  Snippet          Snippet?  @relation(fields: [snippetId], references: [id])
+  snippetId        String?
+  Question         Question? @relation(fields: [questionId], references: [id])
+  questionId       String?
+  Answer           Answer?   @relation(fields: [answerId], references: [id])
+  answerId         String?
+  Reuse            Reuse?    @relation(fields: [reuseId], references: [id])
+  reuseId          String?
+}
+
+model Vote {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       String
+  vote_type     String // values: upvote, downvote
+  voteable_id   String
+  voteable_type String // Question or Answer
+  created_at    DateTime @default(now())
+  Answer        Answer?  @relation(fields: [answerId], references: [id])
+  answerId      String?
+}
+
+model Reuse {
+  id          String       @id @default(uuid())
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  title       String
+  code        String
+  description String
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  tags        SnippetTag[]
+  comments    Comment[]
+}
