@@ -9,11 +9,13 @@ datasource db {
 
 model User {
   id                String     @id @default(uuid())
-  username          String     @unique
+  name              String
   email             String     @unique
   password_hash     String?
+  githubId          String?    @unique
+  googleId          String?    @unique
   bio               String?
-  profile_picture   String?
+  image             String?
   reputation_points Int?
   created_at        DateTime   @default(now())
   updated_at        DateTime   @updatedAt
