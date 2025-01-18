@@ -1,13 +1,16 @@
-import NextAuth, { AuthOptions, NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { User, Account, Profile, Session } from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  debug: process.env.NODE_ENV === "development",
+  secret: process.env.NEXTAUTH_SECRET,
+  
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -16,117 +19,127 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: Record<"email" | "password", string> | undefined, req: any): Promise<User | null> {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials");
         }
 
-        try {
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-            select: {
-              id: true,
-              email: true,
-              password_hash: true,
-              name: true,
-              image: true,
-              githubId: true,
-              googleId: true,
-            },
-          });
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
 
-          if (!user || !user.password_hash) {
-            throw new Error("No user found with this email or password not set");
-          }
-
-          const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
-            user.password_hash
-          );
-
-          if (!isPasswordCorrect) {
-            throw new Error("Incorrect password");
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image || null,
-            githubId: user.githubId || null,
-            googleId: user.googleId || null,
-          };
-        } catch (error) {
-          console.error('Auth Error:', error);
-          throw new Error(error instanceof Error ? error.message : "Authorization failed");
+        if (!user || !user.password_hash) {
+          throw new Error("Invalid credentials");
         }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password_hash
+        );
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid credentials");
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          githubId: user.githubId,
+          googleId: user.googleId,
+        };
       },
     }),
+
     GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.GITHUB_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string,
     }),
+
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
-        },
-      },
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
 
-  adapter: PrismaAdapter(prisma),
-
   session: {
     strategy: "database",
-    maxAge: 30 * 24 * 60 * 60, 
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
   callbacks: {
-    async signIn({ user, account, profile }: { 
-      user: User; 
-      account: Account | null; 
-      profile?: Profile | undefined;
-    }): Promise<boolean> {
+    async session({ session, user }) {
+      if (session.user && user) {
+        session.user = {
+          ...session.user,
+          id: user.id,
+          email: user.email || null,
+          name: user.name || null,
+          image: user.image || null,
+          bio: user.bio || null,
+          githubId: user.githubId || null,
+          googleId: user.googleId || null,
+        };
+      }
+      return session;
+    },
+
+    async signIn({ user, account, profile }) {
       try {
-        if (!user.email) return false;
-
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-        });
-
-        if (!existingUser) {
-          // Create a new user
-          await prisma.user.create({
-            data: {
-              name: user.name || profile?.name || 'Anonymous',
-              email: user.email,
-              image: user.image || profile?.picture || null,
-              githubId: account?.provider === "github" ? profile?.login : null,
-              googleId: account?.provider === "google" ? profile?.sub : null,
-              reputation_points: 0,
+        if (account?.provider === "google" || account?.provider === "github") {
+          const existingUser = await prisma.user.findFirst({
+            where: {
+              OR: [
+                { email: user.email },
+                { githubId: account.provider === "github" ? user.id : null },
+                { googleId: account.provider === "google" ? user.id : null },
+              ],
             },
           });
-        } else {
-          // Update existing user
-          const updateData = {
-            image: user.image || existingUser.image,
-            ...(account?.provider === "github" && profile?.login 
-              ? { githubId: profile.login }
-              : {}),
-            ...(account?.provider === "google" && profile?.sub 
-              ? { googleId: profile.sub }
-              : {}),
-          };
 
-          await prisma.user.update({
+          if (!existingUser) {
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || "",
+                image: user.image || null,
+                githubId: account.provider === "github" ? user.id : null,
+                googleId: account.provider === "google" ? user.id : null,
+                reputation_points: 0,
+              },
+            });
+            return !!newUser;
+          }
+          if (account.provider === "github" && !existingUser.githubId) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { githubId: user.id },
+            });
+          }
+
+          if (account.provider === "google" && !existingUser.googleId) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { googleId: user.id },
+            });
+          }
+        } else if (account?.provider === "credentials") {
+          const existingUser = await prisma.user.findUnique({
             where: { email: user.email },
-            data: updateData,
           });
+
+          if (!existingUser) {
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || "",
+                image: user.image || null,
+                reputation_points: 0,
+              },
+            });
+            return !!newUser;
+          }
         }
 
         return true;
@@ -135,33 +148,12 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
-
-    async session({ session, user }: { 
-      session: Session; 
-      user: User;
-    }): Promise<Session> {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image || null,
-          githubId: user.githubId || null,
-          googleId: user.googleId || null,
-        },
-      };
-    },
   },
 
   pages: {
-    signIn: "/auth/sign-in",
-    signOut: "/auth/sign-out",
+    signIn: "/signin",
     error: "/auth/error",
   },
-
-  // debug: process.env.NODE_ENV === 'development',
 };
 
-export default authOptions;
+export default NextAuth(authOptions);
