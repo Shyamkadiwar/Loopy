@@ -19,13 +19,22 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials");
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password_hash: true,
+            image: true,
+            githubId: true,
+            googleId: true,
+          },
         });
 
         if (!user || !user.password_hash) {
@@ -63,30 +72,47 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
+  pages: {
+    signIn: "/signin",
+    error: "/auth/error",
+  },
+
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
   callbacks: {
-    async session({ session, user }) {
-      if (session.user && user) {
-        session.user = {
-          ...session.user,
-          id: user.id,
-          email: user.email || null,
-          name: user.name || null,
-          image: user.image || null,
-          bio: user.bio || null,
-          githubId: user.githubId || null,
-          googleId: user.googleId || null,
-        };
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
+        token.githubId = user.githubId;
+        token.googleId = user.googleId;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.image = token.picture as string;
+        session.user.githubId = token.githubId as string;
+        session.user.googleId = token.googleId as string;
       }
       return session;
     },
 
     async signIn({ user, account, profile }) {
       try {
+        if (account?.provider === "credentials") {
+          return true;
+        }
+
         if (account?.provider === "google" || account?.provider === "github") {
           const existingUser = await prisma.user.findFirst({
             where: {
@@ -111,6 +137,7 @@ export const authOptions: NextAuthOptions = {
             });
             return !!newUser;
           }
+
           if (account.provider === "github" && !existingUser.githubId) {
             await prisma.user.update({
               where: { id: existingUser.id },
@@ -124,22 +151,6 @@ export const authOptions: NextAuthOptions = {
               data: { googleId: user.id },
             });
           }
-        } else if (account?.provider === "credentials") {
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email },
-          });
-
-          if (!existingUser) {
-            const newUser = await prisma.user.create({
-              data: {
-                email: user.email!,
-                name: user.name || "",
-                image: user.image || null,
-                reputation_points: 0,
-              },
-            });
-            return !!newUser;
-          }
         }
 
         return true;
@@ -148,11 +159,6 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
     },
-  },
-
-  pages: {
-    signIn: "/signin",
-    error: "/auth/error",
   },
 };
 
