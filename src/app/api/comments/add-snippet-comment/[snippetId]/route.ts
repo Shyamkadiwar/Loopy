@@ -15,7 +15,7 @@ export async function POST( request: Request, { params }: { params: { snippetId:
       return new Response(
         JSON.stringify({
           success: false,
-          message: "Not authenticated",
+          message: "User Not authenticated",
         }),
         { status: 401, headers: { "Content-Type": "application/json" } }
       );
@@ -34,10 +34,10 @@ export async function POST( request: Request, { params }: { params: { snippetId:
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-
+    
     const { comment_text, commentable_type } = result.data;
-
     const { snippetId } = params;
+    const userId = session.user.id;
 
     if (!snippetId) {
       return new Response(
@@ -48,9 +48,7 @@ export async function POST( request: Request, { params }: { params: { snippetId:
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-
-    const userId = session.user.id;
-
+    
     const comment = await prisma.comment.create({
       data: {
         comment_text: comment_text,
@@ -61,6 +59,16 @@ export async function POST( request: Request, { params }: { params: { snippetId:
       },
     });
 
+    if(!comment){
+      return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Error while adding commnet",
+          }),
+          { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+  }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -69,7 +77,8 @@ export async function POST( request: Request, { params }: { params: { snippetId:
       }),
       { status: 201, headers: { "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Error while adding comment:", error);
 
     return new Response(
