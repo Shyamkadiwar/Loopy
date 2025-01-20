@@ -27,7 +27,10 @@ export async function GET(request: Request) {
             }
         },
         comments : true
-      }
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
     });
 
     if (snippets.length === 0) {

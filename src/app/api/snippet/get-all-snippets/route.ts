@@ -18,6 +18,9 @@ export async function GET(request: Request){
         }
 
         const snippets = await prisma.snippet.findMany({
+            orderBy: {
+                created_at: 'desc',
+            },
             include : {
                 user : {
                     select : {
