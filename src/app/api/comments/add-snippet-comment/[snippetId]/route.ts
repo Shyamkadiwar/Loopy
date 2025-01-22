@@ -8,7 +8,7 @@ const commentSchema = z.object({
   commentable_type: z.literal("Snippet"),
 });
 
-export async function POST( request: Request, { params }: { params: { snippetId: string } }){
+export async function POST(request: Request, { params }: { params: { snippetId: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -34,7 +34,7 @@ export async function POST( request: Request, { params }: { params: { snippetId:
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    
+
     const { comment_text, commentable_type } = result.data;
     const { snippetId } = params;
     const userId = session.user.id;
@@ -48,26 +48,35 @@ export async function POST( request: Request, { params }: { params: { snippetId:
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    
+
     const comment = await prisma.comment.create({
       data: {
         comment_text: comment_text,
         commentable_type: commentable_type,
-        commentable_id : snippetId,
+        commentable_id: snippetId,
         snippetId: snippetId,
         user_id: userId,
       },
     });
 
-    if(!comment){
+    if (!comment) {
       return new Response(
-          JSON.stringify({
-            success: false,
-            message: "Error while adding commnet",
-          }),
-          { status: 401, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({
+          success: false,
+          message: "Error while adding commnet",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
-  }
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        reputation_points: {
+          increment: 1
+        }
+      }
+    })
 
     return new Response(
       JSON.stringify({

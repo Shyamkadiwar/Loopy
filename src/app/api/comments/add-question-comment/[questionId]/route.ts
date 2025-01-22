@@ -68,6 +68,15 @@ export async function POST(request: Request, {params} : {params : {questionId : 
             );
         }
 
+        await prisma.user.update({
+            where : {id : userId},
+            data : {
+                reputation_points : {
+                    increment : 1
+                }
+            }
+        })
+
         return new Response(
             JSON.stringify({
             success: true,

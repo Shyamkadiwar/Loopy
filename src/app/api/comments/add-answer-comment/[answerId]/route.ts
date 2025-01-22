@@ -68,6 +68,15 @@ export async function POST( request: Request, {params} : {params : {answerId : s
                 { status: 401, headers: { "Content-Type": "application/json" } }
             );
         }
+
+        await prisma.user.update({
+            where : {id : userId},
+            data : {
+                reputation_points : {
+                    increment : 1
+                }
+            }
+        })
     
         return new Response(
             JSON.stringify({
