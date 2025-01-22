@@ -43,28 +43,30 @@ model VerificationToken {
 }
 
 model User {
-  id                String     @id @default(uuid())
+  id                String    @id @default(uuid())
   name              String
-  email             String     @unique
+  email             String    @unique
   password_hash     String?
-  githubId          String?    @unique
-  googleId          String?    @unique
+  githubId          String?   @unique
+  googleId          String?   @unique
   bio               String?
   image             String?
-  reputation_points Int?
-  created_at        DateTime   @default(now())
-  updated_at        DateTime   @updatedAt
+  reputation_points Int?      @default(0)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
   emailVerified     DateTime?
 
-  account           Account[]
-  session           Session[]
+  account Account[]
+  session Session[]
 
-  snippets          Snippet[]
-  reuse             Reuse[]
-  questions         Question[]
-  answers           Answer[]
-  votes             Vote[]
-  comments          Comment[]
+  snippets  Snippet[]
+  reuse     Reuse[]
+  questions Question[]
+  answers   Answer[]
+  votes     Vote[]
+  comments  Comment[]
+  posts     Post[]
+  articles  Article[]
 }
 
 model Snippet {
@@ -141,6 +143,10 @@ model Comment {
   answerId         String?
   Reuse            Reuse?    @relation(fields: [reuseId], references: [id])
   reuseId          String?
+  Post             Post?     @relation(fields: [postId], references: [id])
+  postId           String
+  Article          Article?  @relation(fields: [articleId], references: [id])
+  articleId        String
 }
 
 model Vote {
@@ -153,6 +159,10 @@ model Vote {
   created_at    DateTime @default(now())
   Answer        Answer?  @relation(fields: [answerId], references: [id])
   answerId      String?
+  Post          Post?    @relation(fields: [postId], references: [id])
+  postId        String
+  Article       Article? @relation(fields: [articleId], references: [id])
+  articleId     String
 }
 
 model Reuse {
@@ -162,8 +172,37 @@ model Reuse {
   title       String
   code        String
   description String
+  images      String[]
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
   tags        SnippetTag[]
   comments    Comment[]
+}
+
+model Article {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  title       String
+  description String
+  images      String[]
+  links       String[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+  votes       Vote[]
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+  title       String
+  description String
+  images      String[]
+  links       String[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+  votes       Vote[]
 }
