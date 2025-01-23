@@ -51,8 +51,8 @@ model User {
   googleId          String?   @unique
   bio               String?
   image             String?
-  links             String[]
-  interest           String[]
+  links             Json?
+  interest          String[]
   reputation_points Int?      @default(0)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt

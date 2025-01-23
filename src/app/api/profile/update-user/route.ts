@@ -6,8 +6,6 @@ import { z } from "zod";
 const userSchema = z.object({
     name : z.string().min(1,"Minimum 1 character required"),
     bio : z.string().min(1,"Minimum 1 character required"),
-    interest : z.array(z.string()),
-    link : z.array(z.string()),
 })
 
 export async function POST(request : Request){
@@ -35,7 +33,7 @@ export async function POST(request : Request){
             );
         }
     
-        const {name, bio, interest, link} = result.data
+        const {name, bio} = result.data
         const userId = session.user.id
     
         const updatedUser = await prisma.user.update({
@@ -43,8 +41,6 @@ export async function POST(request : Request){
             data : {
                 name : name,
                 bio : bio,
-                interest : interest,
-                links : link 
             }
         })
     
@@ -62,6 +58,7 @@ export async function POST(request : Request){
             JSON.stringify({
               success: true,
               message: "User details updated successfully",
+              data : updatedUser
             }),
             { status: 200, headers: { "Content-Type": "application/json" } }
         );
