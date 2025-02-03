@@ -62,6 +62,7 @@ export async function POST(request: Request, {params} : {params : {snippetId : s
             JSON.stringify({
               success: true,
               message: "successfully updated snippet",
+              data : newSnippet
             }),
             { status: 500, headers: { "Content-Type": "application/json" } }
         );

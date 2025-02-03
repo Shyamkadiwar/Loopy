@@ -17,7 +17,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
     
         const userId = params.userId
     
-        const details = await prisma.user.findUnique({
+        const userDetails = await prisma.user.findUnique({
             where : {id : userId},
             select : {
                 name : true,
@@ -28,10 +28,18 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                 created_at : true,
                 interest : true,
                 links :true,
+                _count: {
+                    select: {
+                        snippets: true,
+                        comments: true,
+                        answers: true,
+                        questions: true
+                    }
+                }
             }
         })
     
-        if (!details) {
+        if (!userDetails) {
             return new Response(
                 JSON.stringify({
                 success: false,
@@ -40,12 +48,21 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                 { status: 401, headers: { "Content-Type": "application/json" } }
             );
         }
+        const { _count, ...userInfo } = userDetails;
     
         return new Response(
             JSON.stringify({
             success: true,
             message: "User details fetched successfully",
-            data : details
+            data : {
+                ...userInfo,
+                counts: {
+                    snippets: _count.snippets,
+                    comments: _count.comments,
+                    answers: _count.answers,
+                    questions: _count.questions
+                }
+            }
             }),
             { status: 200, headers: { "Content-Type": "application/json" } }
         );
