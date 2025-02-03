@@ -122,6 +122,8 @@ model Answer {
   question    Question  @relation(fields: [question_id], references: [id], onDelete: Cascade)
   question_id String
   answer_text String
+  images      String[]
+  links       String[]
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   comments    Comment[]
