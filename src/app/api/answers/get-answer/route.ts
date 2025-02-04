@@ -32,7 +32,8 @@ export async function GET(request: Request) {
                 },
                 _count: {
                     select: {
-                        votes: true
+                        votes: true,
+                        comments : true
                     }
                 },
                 votes: {

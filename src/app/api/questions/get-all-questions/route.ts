@@ -39,6 +39,11 @@ export async function GET(request: Request) {
                         id : true,
                         comment_text : true
                     }
+                },
+                _count : {
+                    select : {
+                        comments : true
+                    }
                 }
             },
             orderBy : {
