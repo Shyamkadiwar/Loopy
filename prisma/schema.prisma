@@ -159,14 +159,14 @@ model Vote {
   user_id       String
   vote_type     String // values: upvote, downvote
   voteable_id   String
-  voteable_type String // Question or Answer
+  voteable_type String // Answer or Post or Article
   created_at    DateTime @default(now())
   Answer        Answer?  @relation(fields: [answerId], references: [id])
   answerId      String?
   Post          Post?    @relation(fields: [postId], references: [id])
-  postId        String
+  postId        String?
   Article       Article? @relation(fields: [articleId], references: [id])
-  articleId     String
+  articleId     String?
 }
 
 model Reuse {
