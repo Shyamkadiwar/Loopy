@@ -1,8 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import { profile } from "console";
-
 
 export async function GET(request: Request){
     try {
@@ -33,7 +31,19 @@ export async function GET(request: Request){
                         tag : true
                     }
                 },
-                comments : true
+                comments : {
+                    select : {
+                        id : true,
+                        comment_text : true,
+                        user : {
+                            select : {
+                                id : true,
+                                name : true,
+                                email : true
+                            }
+                        }
+                    }
+                }
             }
         })
 
@@ -50,12 +60,6 @@ export async function GET(request: Request){
         const transformedSnippets = snippets.map((snippet)=>({
             ...snippet,
             tags : snippet.tags.map((snippetTag) => (snippetTag.tag) ),
-            comments : snippet.comments.map((comment) => ({
-                id: comment.id,
-                comment_text: comment.comment_text,
-                created_at: comment.created_at,
-                user_id: comment.user_id,
-            }))
         }))
 
         return new Response(

@@ -4,7 +4,6 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 
 export async function GET(request: Request) {
   try {
-
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return new Response(
@@ -20,13 +19,25 @@ export async function GET(request: Request) {
 
     const snippets = await prisma.snippet.findMany({
       where: { user_id: userId },
-      include : {
-        tags : {
-            include : {
-                tag : true
-            }
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
         },
-        comments : true
+        comments: {
+          select: {
+            id: true,
+            comment_text: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
       },
       orderBy: {
         created_at: 'desc',
@@ -44,15 +55,9 @@ export async function GET(request: Request) {
     }
 
     const transformedSnippets = snippets.map((snippet) => ({
-        ...snippet,
-        tags: snippet.tags.map((snippetTag) => snippetTag.tag), // formatted tags
-        comments: snippet.comments.map((comment) => ({
-          id: comment.id,
-          comment_text: comment.comment_text,
-          created_at: comment.created_at,
-          user_id: comment.user_id,
-        })), // formatted comments
-      }));
+      ...snippet,
+      tags: snippet.tags.map((snippetTag) => snippetTag.tag),
+    }));
 
     return new Response(
       JSON.stringify({

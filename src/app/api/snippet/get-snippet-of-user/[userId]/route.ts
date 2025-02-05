@@ -2,42 +2,53 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 
-export async function GET(request: Request, {params} : {params: {userId : string}}) {
+export async function GET(request: Request, { params }: { params: { userId: string } }) {
   try {
-
     const session = await getServerSession(authOptions);
-    if(!session?.user){
-        return new Response(
-            JSON.stringify({
-              success: false,
-              message: "Not authenticated",
-            }),
-            { status: 401, headers: { "Content-Type": "application/json" } }
-        );
+    if (!session?.user) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Not authenticated",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
     }
     const userId = params.userId
     if (!userId) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: "User ID is required",
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-      }  
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "User ID is required",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     const snippets = await prisma.snippet.findMany({
       where: {
         user_id: userId,
-        visibility : "public"
+        visibility: "public"
       },
-      include : {
-        tags : {
-            include : {
-                tag : true
-            }
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
         },
-        comments : true
+        comments: {
+          select: {
+            id: true,
+            comment_text: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
       },
       orderBy: {
         created_at: 'desc',
@@ -55,15 +66,9 @@ export async function GET(request: Request, {params} : {params: {userId : string
     }
 
     const transformedSnippets = snippets.map((snippet) => ({
-        ...snippet,
-        tags: snippet.tags.map((snippetTag) => snippetTag.tag),
-        comments: snippet.comments.map((comment) => ({
-          id: comment.id,
-          comment_text: comment.comment_text,
-          created_at: comment.created_at,
-          user_id: comment.user_id,
-        })),
-      }));
+      ...snippet,
+      tags: snippet.tags.map((snippetTag) => snippetTag.tag),
+    }));
 
     return new Response(
       JSON.stringify({
