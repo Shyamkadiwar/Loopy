@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 export default function Profile() {
   const { data: session, status } = useSession();
@@ -26,6 +27,7 @@ export default function Profile() {
       <button onClick={handleSignOut} type="button">
         Sign Out
       </button>
+      <Button>hhgg</Button>
     </div>
   );
 }

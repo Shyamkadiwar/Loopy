@@ -1,101 +1,83 @@
+"use client";
 import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { faQuoteLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const features = [
+    { title: "VS Code Integration", desc: "Upload and manage code snippets directly from your editor." },
+    { title: "Code Snippet Library", desc: "Categorized snippets for a wide range of programming needs." },
+    { title: "Q&A & Articles", desc: "Ask questions, share articles, and discuss technical topics." },
+    { title: "Community Creation", desc: "Build your own developer communities." },
+    { title: "Real-time Chat", desc: "Instantly connect and collaborate with fellow developers." }
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % features.length);
+    }, 3000); // Change feature every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <>
+      <Navbar />
+
+      {/* Hero Section */}
+      <main className="bg-[#0a090f] w-screen h-screen flex items-center justify-center text-white">
+        {/* Left Section */}
+        <div className="w-2/5 h-1/2 border-[1px] border-[#353539] border-r-0">
+          <div className="w-full border-b-[1px] border-[#353539] border-r-[1px] flex">
+            <h1 className="text-9xl font-bold pl-4">LOOPY</h1>
+          </div>
+          <div className="w-full m-4">
+            <p className="text-lg font-normal m-6">
+             
+            </p>
+          </div>
         </div>
+
+        {/* Right Section (Features Slider) */}
+        <div className="w-2/6 h-1/2 border-[1px] border-l-0 border-r-0 border-[#353539] flex flex-col justify-between items-center relative overflow-hidden">
+          {/* Static Description Section */}
+          <div className="w-full border-b-[1px] border-l-[1px] border-r-[1px] p-3 mb-4 border-[#353539]">
+            <span><FontAwesomeIcon icon={faQuoteLeft} className="pl-4" size="1x" /></span>
+            <p className="text-base font-normal m-4 mb-10 text-start">
+              Loopy is the ultimate platform for developers to store, share, and collaborate on code effortlessly.
+              It simplifies knowledge-sharing through articles, discussions, and Q&A while fostering a vibrant community for open-source contributions
+              and real-time collaboration. With instant chat, feedback-driven learning, and seamless code management, Loopy transforms the way
+              developers connect, grow, and innovate.
+            </p>
+          </div>
+
+          {/* Animated Features Section */}
+          <div className="w-full flex  border-[1px] border-l-[1px] border-[#353539] items-center justify-center relative h-[40%]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 100 }}  // Starts off-screen (right)
+                animate={{ opacity: 1, x: 0 }}   // Moves into view
+                exit={{ opacity: 0, x: -100 }}   // Moves out to the left
+                transition={{ duration: 0.6 }}
+                className="absolute w-full flex flex-col items-center justify-center text-center"
+              >
+                <h2 className="text-xl font-bold">{features[index].title}</h2>
+                <p className="text-base text-gray-300 mt-2">{features[index].desc}</p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </>
   );
 }
