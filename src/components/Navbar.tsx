@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Navbar() {
     return (
-        <nav className="fixed top-0 w-full bg-[#0a090f] border-b border-[#353539] py-4 px-8 flex justify-between items-center z-50">
+        <nav className="fixed top-0 w-full bg-[#0a090f] border-b border-[#353539] py-4 px-8 flex justify-between items-center z-50 selection:bg-white selection:text-black">
             {/* Logo */}
             <div className="flex items-center space-x-3">
                 <Image src="/images/LOOPY.png" alt="Loopy Logo" width={120} height={40} />
@@ -36,12 +36,12 @@ export default function Navbar() {
             {/* Sign In & Sign Up */}
             <div className="flex items-center space-x-4">
                 <Link href="/signin">
-                    <button className="px-4 py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition">
+                    <button className="px-4 font-bold py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition">
                         Sign In
                     </button>
                 </Link>
                 <Link href="/signup">
-                    <button className="px-4 py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition">
+                    <button className="px-4 py-2 font-bold text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition">
                         Sign Up
                     </button>
                 </Link>
