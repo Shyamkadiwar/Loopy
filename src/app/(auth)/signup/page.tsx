@@ -20,56 +20,52 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Github } from 'lucide-react';
 import { SiGoogle } from "react-icons/si";
+import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 
-
-const signInSchema = z.object({
+const signUpSchema = z.object({
+  name: z.string().min(2, "Name should be minimum 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(7, "Password should be minimum 7 characters")
+  password: z.string().min(7, "Password should be minimum 7 characters"),
 });
 
-type SignInFormData = z.infer<typeof signInSchema>;
+type SignUpFormData = z.infer<typeof signUpSchema>;
 
-const SignInPage = () => {
+const SignUpPage = () => {
   const router = useRouter();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-
-  const form = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
+  
+  const form = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     }
   });
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (data: SignUpFormData) => {
     try {
       setIsSubmitting(true);
       setError('');
 
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-        callbackUrl: '/profile'
+      const response = await axios.post('/api/sign-up', data);
+      console.log(response);
+      toast({
+        title: 'Success',
+        description: response.data.message
       });
-
-      if (result?.error) {
-        setError(result.error);
-        toast({
-          title: 'Login Failed',
-          description: 'Incorrect username or password',
-        });
-      }
-      else {
-        router.push('/profile');
-        router.refresh();
-      }
+      router.push('/signin');
     }
     catch (err) {
-      setError('An error occurred during sign in');
+      setError('An error occurred during sign up');
+      toast({
+        title: "Signup Failed",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     }
     finally {
       setIsSubmitting(false);
@@ -90,7 +86,6 @@ const SignInPage = () => {
           <div className="absolute top-0 left-1/4 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
           <div className="absolute top-0 left-1/2 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
           <div className="absolute top-0 left-3/4 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
-          {/* <div className="absolute top-1/4 left-0 w-screen h-[1px] bg-[#353539] opacity-50 z-0"></div> */}
           <div className="absolute top-3/4 left-0 w-full h-[1px] bg-[#353539] opacity-50 z-0"></div>
         </div>
 
@@ -98,7 +93,7 @@ const SignInPage = () => {
           {/* Left Section */}
           <div className="w-2/5 h-1/2 relative z-20">
             <div className="w-full border-b-[1px] border-[#4a4a50] flex hover:border-[#71717a]">
-              <a href="/" > <h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></a>
+              <a href="/"><h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></a>
             </div>
 
             <div className="w-full pt-20">
@@ -111,17 +106,17 @@ const SignInPage = () => {
             </div>
           </div>
 
-          {/* Right Section signin form */}
-          <div className="w-2/6 border-[#353539] flex flex-col  relative overflow-hidden">
+          {/* Right Section signup form */}
+          <div className="w-2/6 border-[#353539] flex flex-col relative overflow-hidden">
             <div className="w-full border-[1px] hover:border-[#4b4b52] p-6 border-[#353539] flex flex-col items-center">
-              <h2 className="text-lg text-center mb-10">Welcome back</h2>
+              <h2 className="text-lg text-center mb-10">Create An Account</h2>
 
               <div className='pb-4 w-full flex justify-center'>
                 <Button
                   onClick={() => handleOAuthSignIn('google')}
                   className="w-2/4 h-11 px-4 font-semibold bg-[#0a090f] py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition flex items-center gap-2"
                 >
-                  <SiGoogle /> Sign in with Google
+                  <SiGoogle /> Continue with Google
                 </Button>
               </div>
 
@@ -130,7 +125,7 @@ const SignInPage = () => {
                   onClick={() => handleOAuthSignIn('github')}
                   className="w-2/4 h-11 px-4 font-semibold bg-[#0a090f] py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition flex items-center gap-2"
                 >
-                  <Github /> Sign in with GitHub
+                  <Github /> Continue with GitHub
                 </Button>
               </div>
 
@@ -140,6 +135,20 @@ const SignInPage = () => {
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center space-y-6 w-full">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="w-2/3">
+                        <FormLabel className='text-sm text-gray-300'>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your name" {...field} className='w-full border-[#353539] border-[1.5px] h-11 rounded-none !text-base' />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="email"
@@ -177,22 +186,21 @@ const SignInPage = () => {
                     className="w-2/3 h-11 px-4 font-semibold bg-[#0a090f] py-2 text-lg border border-[#353539] rounded-lg text-white hover:bg-[#edecec] hover:text-black hover:font-semibold transition"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Signing In...' : 'Sign In'}
+                    {isSubmitting ? 'Creating Account...' : 'Create Account'}
                   </Button>
                 </form>
               </Form>
-              <div className='relative mt-6' onClick={() => router.push('/signup')}>
+              <div className='relative mt-6' onClick={() => router.push('/signin')}>
                 <p className='text-base ml-2 font-font4 font-medium text-zinc-300'>
-                  Don’t have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign up</span>
+                  Already have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign in</span>
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   );
 };
 
-export default SignInPage;
+export default SignUpPage;

@@ -12,7 +12,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, textColor
   return (
     <div className="w-1/4 h-full border-[1px] border-[#353539] transition-all duration-500 hover:scale-105">
       <div
-        className={`border-b-[1px] bg-${textColor} text-center text-lg border-r-[1px] border-[#353539] w-${w} p-2 font-bold font-space-grotesk ${
+        className={`border-b-[1px] bg-${textColor} text-center   text-lg border-r-[1px] border-[#353539] w-${w} p-2 font-bold font-space-grotesk ${
           textColor === "white" ? "text-black" : "text-white"
         }`}
       >
