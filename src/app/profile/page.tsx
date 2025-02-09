@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export default function Profile() {
   const { data: session, status } = useSession();
@@ -20,6 +21,7 @@ export default function Profile() {
 
   return (
     <div>
+      <AppSidebar />
       <h1>Welcome, {session.user?.name}</h1>
       <p>Email: {session.user?.email}</p>
       {session.user?.image && <img src={session.user.image} alt="User image" />}
