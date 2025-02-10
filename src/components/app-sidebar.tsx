@@ -44,16 +44,16 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="min-h-screen">
-      <SidebarContent className="bg-[#0a090f] border-r-[1px] border-[#353539] h-full flex flex-col">
+    <Sidebar className="min-h-screen border-r-[1px] border-[#353539] selection:bg-white selection:text-black">
+      <SidebarContent className="bg-[#0a090f] h-full flex flex-col">
         {/* Logo section */}
         <div className="flex items-center border-[#353539] border-b-[1px]">
           <Image 
             src="/images/logo-bg.png" 
             alt="Loopy Logo" 
-            width={80} 
+            width={68} 
             height={40} 
-            className="object-contain pt-[6px]"
+            className="object-contain"
           />
           <h1 className="text-xl font-bold text-white tracking-wide">LOOPY</h1>
         </div>

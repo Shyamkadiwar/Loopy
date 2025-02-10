@@ -7,19 +7,15 @@ import { AppSidebar } from "@/components/app-sidebar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
         <SessionProvider>
           <SidebarProvider>
-            <AppSidebar />
+            {/* <AppSidebar /> */}
             <main>
-              <SidebarTrigger />
+              {/* <SidebarTrigger /> */}
               {children}
             </main>
           </SidebarProvider>
           <Toaster />
         </SessionProvider>
-      </body>
-    </html>
   );
 }

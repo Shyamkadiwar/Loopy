@@ -64,7 +64,7 @@ const SignInPage = () => {
         });
       }
       else {
-        router.push('/profile');
+        router.push('/home');
         router.refresh();
       }
     }
