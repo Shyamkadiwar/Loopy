@@ -53,7 +53,7 @@ const SignInPage = () => {
         email: data.email,
         password: data.password,
         redirect: false,
-        callbackUrl: '/profile'
+        callbackUrl: '/home'
       });
 
       if (result?.error) {
@@ -78,7 +78,7 @@ const SignInPage = () => {
 
   const handleOAuthSignIn = (provider: 'github' | 'google') => {
     signIn(provider, {
-      callbackUrl: '/profile'
+      callbackUrl: '/home'
     });
   };
 

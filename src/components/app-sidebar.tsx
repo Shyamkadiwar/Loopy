@@ -1,4 +1,7 @@
-import { Calendar, Home, MessageCircleQuestion, FileText, Search, Users, Bookmark } from "lucide-react"
+import { 
+  Calendar, Home, MessageCircleQuestion, 
+  FileText, Search, Users, Bookmark, Code 
+} from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -40,6 +43,11 @@ const items = [
     path: "/bookmark",
     icon: Bookmark,
   },
+  {
+    title: "Snippets",
+    path: "/snippets",
+    icon: Code, // Using Code icon for snippets
+  },
 ]
 
 export function AppSidebar() {
@@ -47,7 +55,7 @@ export function AppSidebar() {
     <Sidebar className="min-h-screen border-r-[1px] border-[#353539] selection:bg-white selection:text-black">
       <SidebarContent className="bg-[#0a090f] h-full flex flex-col">
         {/* Logo section */}
-        <div className="flex items-center border-[#353539] border-b-[1px]">
+        <div className="flex items-center border-[#353539] border-b-[1px] px-4 py-3">
           <Image 
             src="/images/logo-bg.png" 
             alt="Loopy Logo" 
@@ -55,11 +63,11 @@ export function AppSidebar() {
             height={40} 
             className="object-contain"
           />
-          <h1 className="text-xl font-bold text-white tracking-wide">LOOPY</h1>
+          <h1 className="text-xl font-bold text-white tracking-wide ml-2">LOOPY</h1>
         </div>
 
         {/* Navigation Menu */}
-        <div className="flex-1 flex flex-col ">
+        <div className="flex-1 flex flex-col">
           <SidebarMenu>
             {items.map((item) => (
               <SidebarMenuItem key={item.title} className="my-2">

@@ -74,7 +74,7 @@ const SignUpPage = () => {
 
   const handleOAuthSignIn = (provider: 'github' | 'google') => {
     signIn(provider, {
-      callbackUrl: '/profile'
+      callbackUrl: '/home'
     });
   };
 
