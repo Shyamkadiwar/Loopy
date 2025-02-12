@@ -80,7 +80,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           <Button 
             onClick={() => router.back()} 
             variant="ghost" 
-            className="text-white mb-6 flex items-center gap-2 hover:bg-[#1a191f]"
+            className="text-white text-sm mb-6 flex items-center gap-2 border-[#353539] border-[1px]"
           >
             <ArrowLeft className="h-5 w-5" />
             Back to Posts
