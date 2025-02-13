@@ -22,9 +22,8 @@ import { Github } from 'lucide-react';
 import { SiGoogle } from "react-icons/si";
 import { useToast } from '@/hooks/use-toast';
 
-
 const signInSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  login: z.string().min(1, "Email or username is required"),
   password: z.string().min(7, "Password should be minimum 7 characters")
 });
 
@@ -39,7 +38,7 @@ const SignInPage = () => {
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
+      login: "",
       password: "",
     }
   });
@@ -50,7 +49,7 @@ const SignInPage = () => {
       setError('');
 
       const result = await signIn('credentials', {
-        email: data.email,
+        login: data.login,
         password: data.password,
         redirect: false,
         callbackUrl: '/home'
@@ -60,7 +59,7 @@ const SignInPage = () => {
         setError(result.error);
         toast({
           title: 'Login Failed',
-          description: 'Incorrect username or password',
+          description: 'Invalid credentials',
         });
       }
       else {
@@ -90,7 +89,6 @@ const SignInPage = () => {
           <div className="absolute top-0 left-1/4 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
           <div className="absolute top-0 left-1/2 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
           <div className="absolute top-0 left-3/4 w-[1px] h-full bg-[#353539] opacity-50 z-0"></div>
-          {/* <div className="absolute top-1/4 left-0 w-screen h-[1px] bg-[#353539] opacity-50 z-0"></div> */}
           <div className="absolute top-3/4 left-0 w-full h-[1px] bg-[#353539] opacity-50 z-0"></div>
         </div>
 
@@ -112,7 +110,7 @@ const SignInPage = () => {
           </div>
 
           {/* Right Section signin form */}
-          <div className="w-2/6 border-[#353539] flex flex-col  relative overflow-hidden">
+          <div className="w-2/6 border-[#353539] flex flex-col relative overflow-hidden">
             <div className="w-full border-[1px] hover:border-[#4b4b52] p-6 border-[#353539] flex flex-col items-center">
               <h2 className="text-lg text-center mb-10">Welcome back</h2>
 
@@ -142,12 +140,12 @@ const SignInPage = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center space-y-6 w-full">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="login"
                     render={({ field }) => (
                       <FormItem className="w-2/3">
-                        <FormLabel className='text-sm text-gray-300'>Email</FormLabel>
+                        <FormLabel className='text-sm text-gray-300'>Email or Username</FormLabel>
                         <FormControl>
-                          <Input placeholder="name@example.com" {...field} className='w-full border-[#353539] border-[1.5px] h-11 rounded-none !text-base' />
+                          <Input placeholder="Enter your email or username" {...field} className='w-full border-[#353539] border-[1.5px] h-11 rounded-none !text-base' />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -181,14 +179,14 @@ const SignInPage = () => {
                   </Button>
                 </form>
               </Form>
+
               <div className='relative mt-6' onClick={() => router.push('/signup')}>
                 <p className='text-base ml-2 font-font4 font-medium text-zinc-300'>
-                  Don’t have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign up</span>
+                  Don't have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign up</span>
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

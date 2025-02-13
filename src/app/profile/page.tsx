@@ -21,7 +21,7 @@ export default function Profile() {
 
   return (
     <div>
-      <AppSidebar />
+      {/* <AppSidebar /> */}
       <h1>Welcome, {session.user?.name}</h1>
       <p>Email: {session.user?.email}</p>
       {session.user?.image && <img src={session.user.image} alt="User image" />}

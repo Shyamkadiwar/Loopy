@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useDebounceCallback } from 'usehooks-ts';
 import {
   Form,
   FormControl,
@@ -25,6 +26,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name should be minimum 2 characters"),
+  username: z.string()
+    .min(3, "Username must be at least 3 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(7, "Password should be minimum 7 characters"),
 });
@@ -35,24 +39,56 @@ const SignUpPage = () => {
   const router = useRouter();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<{ isChecking: boolean; message: string; isAvailable?: boolean }>({
+    isChecking: false,
+    message: '',
+  });
   const { toast } = useToast();
   
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
+      username: "",
       email: "",
       password: "",
     }
   });
 
+  const checkUsername = async (username: string) => {
+    if (!username || username.length < 3) return;
+    
+    setUsernameStatus(prev => ({ ...prev, isChecking: true }));
+    try {
+      const response = await axios.get(`/api/check-username?username=${username}`);
+      const { isAvailable, message } = response.data;
+      
+      setUsernameStatus({
+        isChecking: false,
+        message,
+        isAvailable
+      });
+    } catch (error) {
+      setUsernameStatus({
+        isChecking: false,
+        message: 'Error checking username',
+      });
+    }
+  };
+
+  const debouncedCheckUsername = useDebounceCallback(checkUsername, 500);
+
   const onSubmit = async (data: SignUpFormData) => {
+    if (usernameStatus.isAvailable === false) {
+      setError('Please choose a different username');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError('');
 
       const response = await axios.post('/api/sign-up', data);
-      console.log(response);
       toast({
         title: 'Success',
         description: response.data.message
@@ -144,6 +180,36 @@ const SignUpPage = () => {
                         <FormControl>
                           <Input placeholder="Enter your name" {...field} className='w-full border-[#353539] border-[1.5px] h-11 rounded-none !text-base' />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem className="w-2/3">
+                        <FormLabel className='text-sm text-gray-300'>Username</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Choose a username" 
+                            {...field} 
+                            className='w-full border-[#353539] border-[1.5px] h-11 rounded-none !text-base'
+                            onChange={(e) => {
+                              field.onChange(e);
+                              debouncedCheckUsername(e.target.value);
+                            }}
+                          />
+                        </FormControl>
+                        {usernameStatus.isChecking && (
+                          <p className="text-sm text-gray-400">Checking username...</p>
+                        )}
+                        {!usernameStatus.isChecking && usernameStatus.message && (
+                          <p className={`text-sm ${usernameStatus.isAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                            {usernameStatus.message}
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
