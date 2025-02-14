@@ -15,6 +15,7 @@ interface PostDetail {
   user: {
     name: string;
     email: string;
+    username: string;
   };
   description: string;
   images: string[];
@@ -86,15 +87,15 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             Back to Posts
           </Button>
 
-          <Card className="p-6 border-[1px] border-[#353539] bg-[#0a090f]">
+          <Card className="p-6 border-[1px] font-space-grotesk border-[#353539] bg-[#0a090f]">
             {/* Post Header */}
             <div className="border-b border-[#353539] pb-4 mb-6">
               <h1 className="text-2xl font-bold text-white mb-4">{post.title}</h1>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <p className="text-muted-foreground">{post.user.name}</p>
+                  <p className="text-muted-foreground">{post.user.username}</p>
                   <span className="text-gray-600">•</span>
-                  <p className="text-sm text-gray-400">{post.user.email}</p>
+                  <p className="text-sm text-gray-400">{post.user.name}</p>
                 </div>
                 <p className="text-sm text-gray-400">
                   {new Date(post.created_at).toLocaleDateString()}

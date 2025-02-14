@@ -24,6 +24,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                     select : {
                         name : true,
                         email : true,
+                        username : true,
                     }
                 },
                 comments : {

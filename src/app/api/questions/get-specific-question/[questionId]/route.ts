@@ -29,6 +29,7 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                                 user: {
                                     select: {
                                         name: true,
+                                        username : true,
                                         image: true
                                     }
                                 }
@@ -48,7 +49,8 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                         user: {
                             select: {
                                 name: true,
-                                image: true
+                                image: true,
+                                username : true,
                             }
                         }
                     }

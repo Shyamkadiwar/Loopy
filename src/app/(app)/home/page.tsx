@@ -16,6 +16,8 @@ interface Post {
   user: {
     name: string;
     email: string;
+    username: string;
+    image: string;
   };
   description: string;
   upVoteCount: number;
@@ -127,9 +129,10 @@ export default function Home() {
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2">
-                      <p className="text-muted-foreground font-space-grotesk">{post.user.name}</p>
+                      {/* <img src={post.user.image} alt="User avatar" /> */}
+                      <p className="text-muted-foreground text-white font-space-grotesk">{post.user.username}</p>
                       <span className="text-gray-600">•</span>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{post.user.email}</p>
+                      <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
                     </div>
 
                     <div className="flex items-center gap-6">
