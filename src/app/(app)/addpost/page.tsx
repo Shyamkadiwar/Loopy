@@ -20,7 +20,6 @@ import { useToast } from '@/hooks/use-toast'
 import { Loader2, X } from 'lucide-react'
 
 const postSchema = z.object({
-    title: z.string().min(3, "Minimum 3 character required"),
     description: z.string().min(3, "Minimum 3 character required"),
     images: z.array(z.string().regex(/^data:image\/(jpeg|png|gif|webp);base64,/))
         .optional()
@@ -35,7 +34,6 @@ function AddPost() {
   const form = useForm<PostFormData>({
       resolver: zodResolver(postSchema),
       defaultValues: {
-          title: "",
           description: "",
           images: [],
           links: []
@@ -83,7 +81,6 @@ function AddPost() {
           const formData = new FormData()
           
           // Append basic fields
-          formData.append('title', data.title)
           formData.append('description', data.description)
           
           // Append images
@@ -130,23 +127,6 @@ function AddPost() {
             
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Title</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                        placeholder="Enter post title" 
-                                        {...field} 
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
                     <FormField
                         control={form.control}
                         name="description"

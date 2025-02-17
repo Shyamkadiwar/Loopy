@@ -11,7 +11,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 
 interface PostDetail {
   id: string;
-  title: string;
   user: {
     name: string;
     email: string;
@@ -87,15 +86,15 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             Back to Posts
           </Button>
 
-          <Card className="p-6 border-[1px] font-space-grotesk border-[#353539] bg-[#0a090f]">
+          <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             {/* Post Header */}
-            <div className="border-b border-[#353539] pb-4 mb-6">
-              <h1 className="text-2xl font-bold text-white mb-4">{post.title}</h1>
+            <div className="pb-4">
+                <div className="flex gap-3 mb-6">
+                <p className="text-sm text-gray-400">@{post.user.username}</p>
+                <p className="text-sm text-gray-400">{post.user.name}</p>
+                </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <p className="text-muted-foreground">{post.user.username}</p>
-                  <span className="text-gray-600">•</span>
-                  <p className="text-sm text-gray-400">{post.user.name}</p>
                 </div>
                 <p className="text-sm text-gray-400">
                   {new Date(post.created_at).toLocaleDateString()}
@@ -104,7 +103,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             </div>
 
             {/* Post Content */}
-            <div className="space-y-6">
+            <div className="space-y-6 ml-4">
               <p className="text-white whitespace-pre-wrap">{post.description}</p>
 
               {post.images && post.images.length > 0 && (
@@ -143,7 +142,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             </div>
 
             {/* Interaction Section */}
-            <div className="flex items-center justify-between mt-6 py-4 border-t border-[#353539]">
+            <div className="flex items-center ml-4 justify-between mt-6 py-4 border-b border-[#353539]">
               <div className="flex items-center gap-6">
                 <Button variant="ghost" className="flex items-center gap-1">
                   <ThumbsUp className="h-5 w-5" />
@@ -165,7 +164,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
               <h3 className="text-xl font-semibold text-white mb-4">Comments</h3>
               <div className="space-y-4">
                 {post.comments.map((comment, index) => (
-                  <Card key={index} className="p-4 border-[1px] border-[#353539] bg-[#0a090f]">
+                  <Card key={index} className="p-4 border-b-[1px] border-[#353539] bg-[#0a090f]">
                     <div className="flex items-start gap-3">
                       {comment.user.image ? (
                         <img 

@@ -99,24 +99,29 @@ export default function Home() {
             posts.map((post) => (
               <Card
                 key={post.id}
-                className="p-4 border-[1px] border-[#353539] bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
+                className="p-4 border-0 bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
                 onClick={() => handlePostClick(post.id)}
               >
                 <div className="flex flex-col gap-4">
-                  <div>
-                    <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2">
+                  <div className="flex items-center gap-2">
+                    {/* <img src={post.user.image} alt="User avatar" /> */}
+                    <p className="text-white font-space-grotesk">@{post.user.username}</p>
+                    <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                  </div>
+                  <div className="ml-4">
+                    {/* <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2">
                       {post.title}
-                    </h1>
-                    <p className="text-muted-foreground line-clamp-2 font-space-grotesk">
+                    </h1> */}
+                    <p className="text-base text-gray-400 line-clamp-2 font-space-grotesk">
                       {post.description}
                     </p>
                   </div>
 
                   {post.images && post.images.length > 0 && (
-                    <div className="relative h-64 w-full overflow-hidden rounded-lg">
-                      <img 
-                        src={post.images[0]} 
-                        alt="Post preview" 
+                    <div className="ml-4 relative h-64 w-full overflow-hidden rounded-lg">
+                      <img
+                        src={post.images[0]}
+                        alt="Post preview"
                         className="object-cover w-full h-full"
                       />
                       {post.images.length > 1 && (
@@ -127,13 +132,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-2">
-                      {/* <img src={post.user.image} alt="User avatar" /> */}
-                      <p className="text-muted-foreground text-white font-space-grotesk">{post.user.username}</p>
-                      <span className="text-gray-600">•</span>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
-                    </div>
+                  <div className="ml-4 flex items-center justify-between mt-2 pb-10">
+
 
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export default function Home() {
               </Card>
             ))
           ) : (
-            <p className="text-muted-foreground text-center">
+            <p className="h-screen justify-center items-center text-center">
               No posts available.
             </p>
           )}

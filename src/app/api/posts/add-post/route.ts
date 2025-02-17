@@ -5,7 +5,6 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 import { z } from "zod";
 
 const postSchema = z.object({
-  title: z.string().min(3, "Minimum 3 character required"),
   description: z.string().min(3, "Minimum 3 character required"),
   // For base64 encoded images
   images: z.array(z.string().regex(/^data:image\/(jpeg|png|gif|webp);base64,/))
@@ -30,7 +29,6 @@ export async function POST(request: Request) {
     const userId = session.user.id;
     const formData = await request.formData();
     const body = {
-      title: formData.get('title'),
       description: formData.get('description'),
       images: formData.getAll('images').map(img => img.toString()),
       links: formData.getAll('links').map(link => link.toString()),
@@ -49,7 +47,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { title, description, images, links } = result.data;
+    const { description, images, links } = result.data;
 
     // Upload images to Cloudinary
     let uploadedImages: string[] = [];
@@ -72,7 +70,6 @@ export async function POST(request: Request) {
     const post = await prisma.post.create({
       data: {
         user_id: userId,
-        title,
         description,
         images: uploadedImages,
         links,
