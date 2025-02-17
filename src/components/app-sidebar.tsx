@@ -30,7 +30,7 @@ const items = [
   },
   {
     title: "Articles",
-    path: "/articles",
+    path: "/articles/all-articles",
     icon: Search,
   },
   {
