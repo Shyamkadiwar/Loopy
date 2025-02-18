@@ -4,7 +4,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { z } from 'zod'
 
 const postSchema = z.object({
-    title: z.string().min(3, "Minimum 3 character required"),
     description: z.string().min(3, "Minimum 3 character required"),
     images: z.array(z.string()).optional().default([]),
     links: z.array(z.string()).optional().default([])
@@ -34,13 +33,12 @@ export async function POST(request: Request, {params} : {params : {postId : stri
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
-        const {title, description, images, links} = result.data
+        const {description, images, links} = result.data
         const postId = params.postId
 
         const newPost = await prisma.post.update({
             where : {id : postId},
             data : {
-                title,
                 description,
                 links,
                 images
