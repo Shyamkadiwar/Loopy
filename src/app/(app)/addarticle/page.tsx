@@ -156,7 +156,8 @@ function AddArticle() {
                                 <FormControl>
                                     <Textarea 
                                         placeholder="Enter article description" 
-                                        className="resize-none"
+                                        className=""
+                                        rows={3}
                                         {...field} 
                                     />
                                 </FormControl>

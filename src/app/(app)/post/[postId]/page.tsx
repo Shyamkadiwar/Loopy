@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PostDetail {
   id: string;
@@ -20,6 +21,7 @@ interface PostDetail {
   images: string[];
   links: string[];
   comments: {
+    id: string;
     comment_text: string;
     user: {
       name: string;
@@ -40,10 +42,12 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
+  const [commentText, setCommentText] = useState<string>("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
 
   useEffect(() => {
     getPostDetail();
-    checkUserVote()
+    checkUserVote();
   }, [params.postId]);
 
   async function getPostDetail() {
@@ -99,8 +103,59 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
         });
       }
     } catch (error) {
-      console.error("Error while adding vote to article:", error);
+      console.error("Error while adding vote to post:", error);
       setError("Failed to cast vote. Please try again later.");
+    }
+  }
+
+  async function addComment(commentable_type: string) {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (!commentText.trim()) {
+      return;
+    }
+
+    setIsSubmittingComment(true);
+
+    try {
+      const response = await axios.post(`/api/comments/add-post-comment/${post?.id}`, {comment_text: commentText, commentable_type});
+
+      if (response.data.success) {
+        // Create a new comment object with the returned data
+        const newComment = {
+          id: response.data.data.id,
+          comment_text: response.data.data.comment_text,
+          user: {
+            name: session.user?.name || "Anonymous",
+            image: session.user?.image || null
+          }
+        };
+
+        // Update the post state with the new comment
+        setPost((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            comments: [...prev.comments, newComment],
+            _count: {
+              ...prev._count,
+              comments: prev._count.comments + 1
+            }
+          };
+        });
+
+        // Clear the comment input
+        setCommentText("");
+      }
+    } catch (error) {
+      console.error("Error while adding comment to post:", error);
+      setError("Failed to add comment. Please try again later.");
+    } finally {
+      setIsSubmittingComment(false);
     }
   }
 
@@ -204,12 +259,35 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
               </div>
             </div>
 
+            {/* Add Comment Section */}
+            <div className="mt-8 mb-8">
+              <h3 className="text-xl font-semibold text-white mb-4">Add Comment</h3>
+              <div className="flex flex-col space-y-3">
+                <Textarea
+                  placeholder="Write your comment here..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  className="bg-[#1a191f] border-[#353539] text-white text-lg"
+                  rows={3}
+                />
+                <Button 
+                  onClick={() => addComment("Post")} 
+                  disabled={isSubmittingComment || !commentText.trim()} 
+                  className="flex items-center gap-2 self-end"
+                >
+                  <Send className="h-4 w-4" />
+                  Post Comment
+                </Button>
+              </div>
+              {error && <p className="text-red-500 mt-2">{error}</p>}
+            </div>
+
             {/* Comments Section */}
             <div className="mt-8">
               <h3 className="text-xl font-semibold text-white mb-4">Comments</h3>
               <div className="space-y-4">
                 {post.comments.map((comment, index) => (
-                  <Card key={index} className="p-4 border-b-[1px] border-[#353539] bg-[#0a090f]">
+                  <Card key={index} className="p-4 border-0 border-l-2 rounded-none border-[#353539] bg-[#0a090f]">
                     <div className="flex items-start gap-3">
                       {comment.user.image ? (
                         <img
@@ -233,6 +311,9 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                     </div>
                   </Card>
                 ))}
+                {post.comments.length === 0 && (
+                  <p className="text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
+                )}
               </div>
             </div>
           </Card>

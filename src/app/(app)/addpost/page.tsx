@@ -136,7 +136,8 @@ function AddPost() {
                                 <FormControl>
                                     <Textarea 
                                         placeholder="Enter post description" 
-                                        className="resize-none"
+                                        className=""
+                                        rows={3}
                                         {...field} 
                                     />
                                 </FormControl>
