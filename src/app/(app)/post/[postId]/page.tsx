@@ -39,9 +39,11 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   const { data: session, status } = useSession();
   const [post, setPost] = useState<PostDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
 
   useEffect(() => {
     getPostDetail();
+    checkUserVote()
   }, [params.postId]);
 
   async function getPostDetail() {
@@ -56,6 +58,49 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
     } catch (error) {
       console.error("Error fetching post details:", error);
       setError("Failed to load post details. Please try again later.");
+    }
+  }
+
+  async function checkUserVote() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/vote/check/${params.postId}`);
+      if (response.data.success) {
+        setUserVote(response.data.vote_type); // "upvote" or "downvote"
+      }
+    } catch (error) {
+      console.error("Error checking user vote:", error);
+    }
+  }
+
+  async function addVote(postId: string, vote_type: "upvote" | "downvote", voteable_type: string) {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (userVote === vote_type) return; // Prevent double voting
+
+    try {
+      const response = await axios.post(`/api/vote/add-post-vote/${postId}`, { vote_type, voteable_type });
+
+      if (response.data.success) {
+        setUserVote(vote_type);
+
+        setPost((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            upVoteCount: vote_type === "upvote" ? prev.upVoteCount + 1 : prev.upVoteCount,
+            downVoteCount: vote_type === "downvote" ? prev.downVoteCount + 1 : prev.downVoteCount,
+          };
+        });
+      }
+    } catch (error) {
+      console.error("Error while adding vote to article:", error);
+      setError("Failed to cast vote. Please try again later.");
     }
   }
 
@@ -77,9 +122,9 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
       <AppSidebar />
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto py-6 px-4">
-          <Button 
-            onClick={() => router.back()} 
-            variant="ghost" 
+          <Button
+            onClick={() => router.back()}
+            variant="ghost"
             className="text-white text-sm mb-6 flex items-center gap-2 border-[#353539] border-[1px]"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -89,10 +134,10 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             {/* Post Header */}
             <div className="pb-4">
-                <div className="flex gap-3 mb-6">
+              <div className="flex gap-3 mb-6">
                 <p className="text-sm text-gray-400">@{post.user.username}</p>
                 <p className="text-sm text-gray-400">{post.user.name}</p>
-                </div>
+              </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                 </div>
@@ -110,9 +155,9 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {post.images.map((image, index) => (
                     <div key={index} className="relative aspect-video overflow-hidden rounded-lg">
-                      <img 
-                        src={image} 
-                        alt={`Post image ${index + 1}`} 
+                      <img
+                        src={image}
+                        alt={`Post image ${index + 1}`}
                         className="object-cover w-full h-full"
                       />
                     </div>
@@ -126,10 +171,10 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                   <ul className="space-y-2">
                     {post.links.map((link, index) => (
                       <li key={index}>
-                        <a 
-                          href={link} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-blue-400 hover:underline break-all"
                         >
                           {link}
@@ -144,12 +189,12 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             {/* Interaction Section */}
             <div className="flex items-center ml-4 justify-between mt-6 py-4 ">
               <div className="flex items-center gap-6">
-                <Button className="flex items-center gap-1">
-                  <ThumbsUp className="h-5 w-5" />
+                <Button onClick={() => addVote(post.id, "upvote", "Post")} className="flex items-center gap-1">
+                  <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"}`} />
                   <span>{post.upVoteCount}</span>
                 </Button>
-                <Button className="flex items-center gap-1">
-                  <ThumbsDown className="h-5 w-5" />
+                <Button onClick={() => addVote(post.id, "downvote", "Post")} className="flex items-center gap-1">
+                  <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"}`} />
                   <span>{post.downVoteCount}</span>
                 </Button>
               </div>
@@ -167,9 +212,9 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                   <Card key={index} className="p-4 border-b-[1px] border-[#353539] bg-[#0a090f]">
                     <div className="flex items-start gap-3">
                       {comment.user.image ? (
-                        <img 
-                          src={comment.user.image} 
-                          alt={comment.user.name} 
+                        <img
+                          src={comment.user.image}
+                          alt={comment.user.name}
                           className="w-8 h-8 rounded-full"
                         />
                       ) : (
