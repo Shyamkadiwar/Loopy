@@ -142,13 +142,13 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
             </div>
 
             {/* Interaction Section */}
-            <div className="flex items-center ml-4 justify-between mt-6 py-4 border-b border-[#353539]">
+            <div className="flex items-center ml-4 justify-between mt-6 py-4 ">
               <div className="flex items-center gap-6">
-                <Button variant="ghost" className="flex items-center gap-1">
+                <Button className="flex items-center gap-1">
                   <ThumbsUp className="h-5 w-5" />
                   <span>{post.upVoteCount}</span>
                 </Button>
-                <Button variant="ghost" className="flex items-center gap-1">
+                <Button className="flex items-center gap-1">
                   <ThumbsDown className="h-5 w-5" />
                   <span>{post.downVoteCount}</span>
                 </Button>

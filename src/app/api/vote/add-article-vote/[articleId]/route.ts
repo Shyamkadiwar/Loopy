@@ -34,7 +34,7 @@ export async function POST(request: Request, { params }: { params: { articleId: 
         }
 
         const { vote_type, voteable_type } = result.data;
-        const articleId = params.articleId;
+        const articleId = await params.articleId;
         const userId = session.user.id;
 
         if (!articleId) {

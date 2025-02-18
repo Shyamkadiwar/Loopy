@@ -99,21 +99,26 @@ export default function Home() {
             articles.map((article) => (
               <Card
                 key={article.id}
-                className="p-4 border-[1px] border-[#353539] bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
+                className="p-4 border-0 bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
                 onClick={() => handlearticleClick(article.id)}
               >
                 <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                      {/* <img src={article.user.image} alt="User avatar" /> */}
+                      <p className="text-muted-foreground text-white font-space-grotesk">@{article.user.username}</p>
+                      <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                    </div>
                   <div>
-                    <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2">
+                    <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2 pl-4">
                       {article.title}
                     </h1>
-                    <p className="text-muted-foreground line-clamp-2 font-space-grotesk">
+                    <p className="text-muted-foreground line-clamp-2 font-space-grotesk pl-4">
                       {article.description}
                     </p>
                   </div>
 
                   {article.images && article.images.length > 0 && (
-                    <div className="relative h-64 w-full overflow-hidden rounded-lg">
+                    <div className="relative h-64 w-full overflow-hidden rounded-lg pl-4">
                       <img 
                         src={article.images[0]} 
                         alt="article preview" 
@@ -127,15 +132,10 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-2">
-                      {/* <img src={article.user.image} alt="User avatar" /> */}
-                      <p className="text-muted-foreground text-white font-space-grotesk">{article.user.username}</p>
-                      <span className="text-gray-600">•</span>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
-                    </div>
+                  <div className="flex items-center justify-between mt-2 pl-4">
+                    
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-6 pb-10">
                       <div className="flex items-center gap-2">
                         <MessageSquare className="h-5 w-5 text-gray-400" />
                         <span className="text-gray-400 font-space-grotesk">{article._count.comments}</span>
