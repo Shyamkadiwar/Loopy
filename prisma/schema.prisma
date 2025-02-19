@@ -152,6 +152,7 @@ model Comment {
   postId           String?
   Article          Article?  @relation(fields: [articleId], references: [id])
   articleId        String?
+  Vote             Vote[]
 }
 
 model Vote {
@@ -168,6 +169,8 @@ model Vote {
   postId        String?
   Article       Article? @relation(fields: [articleId], references: [id])
   articleId     String?
+  Comment       Comment? @relation(fields: [commentId], references: [id])
+  commentId     String?
 }
 
 model Reuse {

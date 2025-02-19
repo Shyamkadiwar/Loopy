@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
+import Comments from "@/components/Comments"
 
 interface PostDetail {
   id: string;
@@ -154,7 +155,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
     setIsSubmittingComment(true);
 
     try {
-      const response = await axios.post(`/api/comments/add-post-comment/${post?.id}`, {comment_text: commentText, commentable_type});
+      const response = await axios.post(`/api/comments/add-post-comment/${post?.id}`, { comment_text: commentText, commentable_type });
 
       if (response.data.success) {
         // Create a new comment object with the returned data
@@ -276,28 +277,28 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
 
             {/* Interaction Section */}
             <div className="flex items-center ml-4 justify-between mt-6 py-4 ">
-            <div className="flex items-center gap-6">
-                  <Button
-                    onClick={() => handleVote(post.id, "upvote")}
-                    disabled={isProcessingVote}
-                    className={`flex items-center gap-1"
+              <div className="flex items-center gap-6">
+                <Button
+                  onClick={() => handleVote(post.id, "upvote")}
+                  disabled={isProcessingVote}
+                  className={`flex items-center gap-1"
                       }`}
-                  >
-                    <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"
-                      }`} />
-                    <span>{post.upVoteCount}</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleVote(post.id, "downvote")}
-                    disabled={isProcessingVote}
-                    className={`flex items-center gap-1"
+                >
+                  <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"
+                    }`} />
+                  <span>{post.upVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={() => handleVote(post.id, "downvote")}
+                  disabled={isProcessingVote}
+                  className={`flex items-center gap-1"
                       }`}
-                  >
-                    <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
-                      }`} />
-                    <span>{post.downVoteCount}</span>
-                  </Button>
-                </div>
+                >
+                  <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
+                    }`} />
+                  <span>{post.downVoteCount}</span>
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
                 <span className="text-gray-400">{post._count.comments} comments</span>
@@ -315,9 +316,9 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                   className="bg-[#1a191f] border-[#353539] text-white text-lg"
                   rows={3}
                 />
-                <Button 
-                  onClick={() => addComment("Post")} 
-                  disabled={isSubmittingComment || !commentText.trim()} 
+                <Button
+                  onClick={() => addComment("Post")}
+                  disabled={isSubmittingComment || !commentText.trim()}
                   className="flex items-center gap-2 self-end"
                 >
                   <Send className="h-4 w-4" />
@@ -326,41 +327,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
               </div>
               {error && <p className="text-red-500 mt-2">{error}</p>}
             </div>
-
-            {/* Comments Section */}
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Comments</h3>
-              <div className="space-y-4">
-                {post.comments.map((comment, index) => (
-                  <Card key={index} className="p-4 border-0 border-l-2 rounded-none border-[#353539] bg-[#0a090f]">
-                    <div className="flex items-start gap-3">
-                      {comment.user.image ? (
-                        <img
-                          src={comment.user.image}
-                          alt={comment.user.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-[#353539] flex items-center justify-center">
-                          <span className="text-white text-sm">
-                            {comment.user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-white mb-1">
-                          {comment.user.name}
-                        </p>
-                        <p className="text-gray-300">{comment.comment_text}</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-                {post.comments.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
-                )}
-              </div>
-            </div>
+            <Comments comments={post.comments} />
           </Card>
         </div>
       </div>

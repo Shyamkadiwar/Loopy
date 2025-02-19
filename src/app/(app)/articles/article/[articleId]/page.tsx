@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
+import Comments from "@/components/Comments";
 
 interface ArticleDetail {
   id: string;
@@ -304,40 +305,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
               {error && <p className="text-red-500 mt-2">{error}</p>}
             </div>
 
-            {/* Comments Section */}
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Comments</h3>
-              <div className="space-y-4">
-                {article.comments.map((comment, index) => (
-                  <Card key={index} className="p-4 border-0 border-l-2 rounded-none border-[#353539] bg-[#0a090f]">
-                    <div className="flex items-start gap-3">
-                      {comment.user.image ? (
-                        <img
-                          src={comment.user.image}
-                          alt={comment.user.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-[#353539] flex items-center justify-center">
-                          <span className="text-white text-sm">
-                            {comment.user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-white mb-1">
-                          {comment.user.name}
-                        </p>
-                        <p className="text-gray-300">{comment.comment_text}</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-                {article.comments.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
-                )}
-              </div>
-            </div>
+            <Comments comments={article.comments} />
           </Card>
         </div>
       </div>
