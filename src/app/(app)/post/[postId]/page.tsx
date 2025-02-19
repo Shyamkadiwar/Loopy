@@ -44,6 +44,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const [commentText, setCommentText] = useState<string>("");
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
+  const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
 
   useEffect(() => {
     getPostDetail();
@@ -78,33 +79,65 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
     }
   }
 
-  async function addVote(postId: string, vote_type: "upvote" | "downvote", voteable_type: string) {
+  async function handleVote(postId: string, newVoteType: "upvote" | "downvote") {
     if (!session) {
       router.push("/signin");
       return;
     }
 
-    if (userVote === vote_type) return; // Prevent double voting
+    if (isProcessingVote) return;
+    setIsProcessingVote(true);
 
     try {
-      const response = await axios.post(`/api/vote/add-post-vote/${postId}`, { vote_type, voteable_type });
-
-      if (response.data.success) {
-        setUserVote(vote_type);
-
-        setPost((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            upVoteCount: vote_type === "upvote" ? prev.upVoteCount + 1 : prev.upVoteCount,
-            downVoteCount: vote_type === "downvote" ? prev.downVoteCount + 1 : prev.downVoteCount,
-          };
+      if (userVote === newVoteType) {
+        // Remove vote if clicking the same type
+        const response = await axios.delete(`/api/vote/remove-post-vote/${postId}`);
+        if (response.data.success) {
+          setPost((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              upVoteCount: newVoteType === "upvote" ? prev.upVoteCount - 1 : prev.upVoteCount,
+              downVoteCount: newVoteType === "downvote" ? prev.downVoteCount - 1 : prev.downVoteCount,
+            };
+          });
+          setUserVote(null);
+        }
+      } else {
+        // Add or update vote
+        const response = await axios.post(`/api/vote/add-post-vote/${postId}`, {
+          vote_type: newVoteType,
+          voteable_type: "Post"
         });
+
+        if (response.data.success) {
+          setPost((prev) => {
+            if (!prev) return prev;
+
+            let upCount = prev.upVoteCount;
+            let downCount = prev.downVoteCount;
+
+            // Remove old vote count if exists
+            if (userVote === "upvote") upCount--;
+            if (userVote === "downvote") downCount--;
+
+            // Add new vote count
+            if (newVoteType === "upvote") upCount++;
+            if (newVoteType === "downvote") downCount++;
+
+            return {
+              ...prev,
+              upVoteCount: upCount,
+              downVoteCount: downCount,
+            };
+          });
+          setUserVote(newVoteType);
+        }
       }
     } catch (error) {
-      console.error("Error while adding vote to post:", error);
-      setError("Failed to cast vote. Please try again later.");
+      console.error("Error processing vote:", error);
+    } finally {
+      setIsProcessingVote(false);
     }
   }
 
@@ -243,16 +276,28 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
 
             {/* Interaction Section */}
             <div className="flex items-center ml-4 justify-between mt-6 py-4 ">
-              <div className="flex items-center gap-6">
-                <Button onClick={() => addVote(post.id, "upvote", "Post")} className="flex items-center gap-1">
-                  <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"}`} />
-                  <span>{post.upVoteCount}</span>
-                </Button>
-                <Button onClick={() => addVote(post.id, "downvote", "Post")} className="flex items-center gap-1">
-                  <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"}`} />
-                  <span>{post.downVoteCount}</span>
-                </Button>
-              </div>
+            <div className="flex items-center gap-6">
+                  <Button
+                    onClick={() => handleVote(post.id, "upvote")}
+                    disabled={isProcessingVote}
+                    className={`flex items-center gap-1"
+                      }`}
+                  >
+                    <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"
+                      }`} />
+                    <span>{post.upVoteCount}</span>
+                  </Button>
+                  <Button
+                    onClick={() => handleVote(post.id, "downvote")}
+                    disabled={isProcessingVote}
+                    className={`flex items-center gap-1"
+                      }`}
+                  >
+                    <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
+                      }`} />
+                    <span>{post.downVoteCount}</span>
+                  </Button>
+                </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
                 <span className="text-gray-400">{post._count.comments} comments</span>

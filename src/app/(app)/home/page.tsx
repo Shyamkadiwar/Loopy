@@ -74,7 +74,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
       <AppSidebar />
-      <div className="flex-1 overflow-y-auto relative">
+      <div className="flex-1 overflow-y-auto relative border-b-[2px] border-[#353539]">
         {/* Header */}
         <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
           <div className="relative w-1/3">
@@ -86,8 +86,8 @@ export default function Home() {
               aria-label="Search posts"
             />
           </div>
-          <Button onClick={() => signOut()} className="text-white">
-            Sign Out
+          <Button onClick={() => router.push('/addpost')} className="text-white">
+            Create Post
           </Button>
         </div>
 
@@ -99,7 +99,7 @@ export default function Home() {
             posts.map((post) => (
               <Card
                 key={post.id}
-                className="p-4 border-0 bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
+                className="p-4 border-0 bg-[#0a090f] rounded-none border-b-[1px] border-[#353539] hover:border-[#4b4b52] cursor-pointer transition-colors"
                 onClick={() => handlePostClick(post.id)}
               >
                 <div className="flex flex-col gap-4">

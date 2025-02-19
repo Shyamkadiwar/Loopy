@@ -86,8 +86,8 @@ export default function Home() {
               aria-label="Search articles"
             />
           </div>
-          <Button onClick={() => signOut()} className="text-white">
-            Sign Out
+          <Button onClick={() => router.push('/addarticle')} className="text-white">
+            Create Article
           </Button>
         </div>
 
@@ -99,7 +99,7 @@ export default function Home() {
             articles.map((article) => (
               <Card
                 key={article.id}
-                className="p-4 border-0 bg-[#0a090f] hover:border-[#4b4b52] cursor-pointer transition-colors"
+                className="p-4 border-0 bg-[#0a090f] rounded-none border-b-[1px] border-[#353539] hover:border-[#4b4b52] cursor-pointer transition-colors"
                 onClick={() => handlearticleClick(article.id)}
               >
                 <div className="flex flex-col gap-4">

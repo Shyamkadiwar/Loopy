@@ -32,6 +32,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
   const [commentText, setCommentText] = useState<string>("");
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
+  const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
 
   useEffect(() => {
     getArticleDetail();
@@ -66,53 +67,65 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
     }
   }
 
-  async function handleVote(articleId: string, vote_type: "upvote" | "downvote", voteable_type:string) {
+  async function handleVote(articleId: string, newVoteType: "upvote" | "downvote") {
     if (!session) {
       router.push("/signin");
       return;
     }
-  
+
+    if (isProcessingVote) return;
+    setIsProcessingVote(true);
+
     try {
-      // Remove vote if user clicks on the same button again
-      if (userVote === vote_type) {
-        const response = await axios.delete(`/api/vote/remove-answer-vote/${articleId}`);
+      if (userVote === newVoteType) {
+        // Remove vote if clicking the same type
+        const response = await axios.delete(`/api/vote/remove-article-vote/${articleId}`);
         if (response.data.success) {
-          setUserVote(null);
           setArticle((prev) => {
             if (!prev) return prev;
             return {
               ...prev,
-              upVoteCount: vote_type === "upvote" ? prev.upVoteCount - 1 : prev.upVoteCount,
-              downVoteCount: vote_type === "downvote" ? prev.downVoteCount - 1 : prev.downVoteCount,
+              upVoteCount: newVoteType === "upvote" ? prev.upVoteCount - 1 : prev.upVoteCount,
+              downVoteCount: newVoteType === "downvote" ? prev.downVoteCount - 1 : prev.downVoteCount,
             };
           });
+          setUserVote(null);
         }
-        return;
-      }
-  
-      // Otherwise, add the vote
-      const response = await axios.post(`/api/vote/add-article-vote/${articleId}`, { vote_type, voteable_type: "Article" });
-  
-      if (response.data.success) {
-        setUserVote(vote_type);
-        setArticle((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            upVoteCount:
-              vote_type === "upvote"
-                ? prev.upVoteCount + 1 - (userVote === "downvote" ? 1 : 0)
-                : prev.upVoteCount - (userVote === "upvote" ? 1 : 0),
-            downVoteCount:
-              vote_type === "downvote"
-                ? prev.downVoteCount + 1 - (userVote === "upvote" ? 1 : 0)
-                : prev.downVoteCount - (userVote === "downvote" ? 1 : 0),
-          };
+      } else {
+        // Add or update vote
+        const response = await axios.post(`/api/vote/add-article-vote/${articleId}`, {
+          vote_type: newVoteType,
+          voteable_type: "Article"
         });
+
+        if (response.data.success) {
+          setArticle((prev) => {
+            if (!prev) return prev;
+
+            let upCount = prev.upVoteCount;
+            let downCount = prev.downVoteCount;
+
+            // Remove old vote count if exists
+            if (userVote === "upvote") upCount--;
+            if (userVote === "downvote") downCount--;
+
+            // Add new vote count
+            if (newVoteType === "upvote") upCount++;
+            if (newVoteType === "downvote") downCount++;
+
+            return {
+              ...prev,
+              upVoteCount: upCount,
+              downVoteCount: downCount,
+            };
+          });
+          setUserVote(newVoteType);
+        }
       }
     } catch (error) {
-      console.error("Error while voting:", error);
-      setError("Failed to update vote. Please try again.");
+      console.error("Error processing vote:", error);
+    } finally {
+      setIsProcessingVote(false);
     }
   }
 
@@ -129,7 +142,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
     setIsSubmittingComment(true);
 
     try {
-      const response = await axios.post(`/api/comments/add-article-comment/${article?.id}`, {comment_text: commentText, commentable_type});
+      const response = await axios.post(`/api/comments/add-article-comment/${article?.id}`, { comment_text: commentText, commentable_type });
 
       if (response.data.success) {
         // Create a new comment object with the returned data
@@ -166,7 +179,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
       setIsSubmittingComment(false);
     }
   }
-  
+
 
   if (status === "loading" || !article) {
     return (
@@ -239,19 +252,29 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
             </div>
 
             <div className="flex items-center justify-between mt-6 py-4">
-              <div className="flex items-center gap-6">
-                <Button onClick={() => handleVote(article.id, "upvote", "Article")} className="flex items-center gap-1">
-                  <ThumbsUp
-                    className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"}`}
-                  />
-                  <span>{article.upVoteCount}</span>
-                </Button>
-                <Button onClick={() => handleVote(article.id, "downvote", "Article")} className="flex items-center gap-1">
-                  <ThumbsDown
-                    className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"}`}
-                  />
-                  <span>{article.downVoteCount}</span>
-                </Button>
+              <div className="flex items-center ml-4 justify-between mt-6 py-4">
+                <div className="flex items-center gap-6">
+                  <Button
+                    onClick={() => handleVote(article.id, "upvote")}
+                    disabled={isProcessingVote}
+                    className={`flex items-center gap-1"
+                      }`}
+                  >
+                    <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"
+                      }`} />
+                    <span>{article.upVoteCount}</span>
+                  </Button>
+                  <Button
+                    onClick={() => handleVote(article.id, "downvote")}
+                    disabled={isProcessingVote}
+                    className={`flex items-center gap-1"
+                      }`}
+                  >
+                    <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
+                      }`} />
+                    <span>{article.downVoteCount}</span>
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
@@ -269,9 +292,9 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
                   className="bg-[#1a191f] border-[#353539] text-white text-lg"
                   rows={3}
                 />
-                <Button 
-                  onClick={() => addComment("Article")} 
-                  disabled={isSubmittingComment || !commentText.trim()} 
+                <Button
+                  onClick={() => addComment("Article")}
+                  disabled={isSubmittingComment || !commentText.trim()}
                   className="flex items-center gap-2 self-end"
                 >
                   <Send className="h-4 w-4" />
