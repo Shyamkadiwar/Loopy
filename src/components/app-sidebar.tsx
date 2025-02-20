@@ -20,12 +20,12 @@ const items = [
   },
   {
     title: "Q&A",
-    path: "/qa",
+    path: "/questions/all-questions",
     icon: MessageCircleQuestion,
   },
   {
     title: "Posts",
-    path: "/posts",
+    path: "/home",
     icon: FileText,
   },
   {
