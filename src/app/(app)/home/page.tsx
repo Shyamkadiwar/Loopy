@@ -86,7 +86,7 @@ export default function Home() {
               aria-label="Search posts"
             />
           </div>
-          <Button onClick={() => router.push('/addpost')} className="text-white">
+          <Button onClick={() => router.push('add/addpost')} className="text-white">
             Create Post
           </Button>
         </div>
