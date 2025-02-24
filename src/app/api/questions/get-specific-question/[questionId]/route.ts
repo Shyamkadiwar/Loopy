@@ -20,8 +20,21 @@ export async function GET(request : Request, {params}: {params : {questionId : s
         const question = await prisma.question.findUnique({
             where : {id : questionId},
             include : {
+                user : {
+                    select : {
+                        username : true,
+                        name : true
+                    }
+                },
                 answers : {
                     include : {
+                        user : {
+                            select : {
+                                name : true,
+                                username : true,
+                                image : true,
+                            }
+                        },
                         comments: {
                             select: {
                                 id: true,
@@ -42,24 +55,6 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                         },
                     }   
                 },
-                comments : {
-                    select : {
-                        id : true,
-                        comment_text : true,
-                        user: {
-                            select: {
-                                name: true,
-                                image: true,
-                                username : true,
-                            }
-                        }
-                    }
-                },
-                _count : {
-                    select : {
-                        comments : true
-                    }
-                }
             }
         })
 
