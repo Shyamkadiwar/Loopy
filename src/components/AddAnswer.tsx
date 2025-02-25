@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Link, Image, X, Plus } from "lucide-react";
+import { Send, Link, Image, X, Plus, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -26,6 +26,7 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
   const [error, setError] = useState<string | null>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!session) {
     return null;
@@ -57,13 +58,9 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
     }
   };
 
-  const removeLink = (index: number) => {
-    setLinks(links.filter((_, i) => i !== index));
-  };
+  const removeLink = (index: number) => setLinks(links.filter((item, i) => i !== index));
+  const removeImage = (index: number) => setImages(images.filter((item, i) => i !== index));
 
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
 
   const isValidUrl = (string: string) => {
     try {
@@ -71,6 +68,36 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
       return true;
     } catch (_) {
       return false;
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const imagePromises = files.map(file => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          resolve(result);
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    });
+
+    try {
+      const base64Images = await Promise.all(imagePromises);
+      setImages([...images, ...base64Images]);
+      
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      setError("Failed to process images. Please try again.");
+      setTimeout(() => setError(null), 3000);
     }
   };
 
@@ -84,11 +111,14 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
     setError(null);
 
     try {
-      const response = await axios.post(`/api/answers/add-answer/${questionId}`, {
+      // Based on your API route, it expects a JSON payload with answer_text, links, and images
+      const payload = {
         answer_text: answerText,
-        links,
-        images
-      });
+        links: links,
+        images: images
+      };
+
+      const response = await axios.post(`/api/answers/add-answer/${questionId}`, payload);
 
       if (response.data.success) {
         const newAnswer = {
@@ -192,9 +222,10 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Image className="h-5 w-5 text-gray-400" />
-            <h4 className="text-sm font-medium text-white">Add Image URLs</h4>
+            <h4 className="text-sm font-medium text-white">Add Images</h4>
           </div>
           
+          {/* Image URL Input */}
           <div className="flex gap-2">
             <Input
               ref={imageInputRef}
@@ -209,14 +240,28 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
             </Button>
           </div>
           
+          {/* Image Upload Input */}
+          <div className="mt-2">
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              className="cursor-pointer bg-[#1a191f] border-[#353539] text-white"
+            />
+            <p className="text-xs text-gray-400 mt-1">Or upload images directly</p>
+          </div>
+          
+          {/* Image Previews */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 gap-2 mt-2">
               {images.map((image, index) => (
-                <div key={index} className="relative group">
+                <div key={index} className="relative group aspect-video">
                   <img
                     src={image}
-                    alt={`Preview ${index + 1}`}
-                    className="h-20 object-cover w-full rounded-md"
+                    alt={`Image ${index + 1}`}
+                    className="object-cover w-full h-full rounded-md"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "https://via.placeholder.com/150?text=Invalid+Image";
@@ -243,8 +288,17 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
           disabled={isSubmitting || !answerText.trim()}
           className="flex items-center gap-2 self-end w-full sm:w-auto"
         >
-          <Send className="h-4 w-4" />
-          {isSubmitting ? "Submitting..." : "Post Answer"}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              Post Answer
+            </>
+          )}
         </Button>
       </div>
     </div>

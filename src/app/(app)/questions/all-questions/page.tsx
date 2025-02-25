@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
+import { Search, ThumbsUp, ThumbsDown, MessageSquare, MessageCircleQuestion } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ interface question {
   description: string;
   upVoteCount: number;
   downVoteCount: number;
+  answers: number[];
   images: string[];
   _count: {
     comments: number;
@@ -137,8 +138,8 @@ export default function Home() {
 
                     <div className="flex items-center gap-6 pb-10">
                       <div className="flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-400 font-space-grotesk">{question._count.comments}</span>
+                        <MessageCircleQuestion className="h-5 w-5 text-gray-400" />
+                        <span className="text-gray-400 font-space-grotesk">{question.answers.length}</span>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
