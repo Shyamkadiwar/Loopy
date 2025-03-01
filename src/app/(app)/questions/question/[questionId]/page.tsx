@@ -205,17 +205,17 @@ export default function questionDetail({ params }: { params: { questionId: strin
             {/* Divider */}
             <div className="border-t border-[#353539] my-10"></div>
             
+            {/* Add Answer Section */}
+            <AddAnswer 
+              questionId={question.id}
+              onAnswerAdded={handleAnswerAdded}
+              />
             {/* Answers Section */}
             <Answers 
               answers={question.answers || []} 
               questionId={question.id} 
             />
             
-            {/* Add Answer Section */}
-            <AddAnswer 
-              questionId={question.id}
-              onAnswerAdded={handleAnswerAdded}
-            />
           </Card>
         </div>
       </div>
