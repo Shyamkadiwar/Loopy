@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, Plus, X } from 'lucide-react'
 import { AppSidebar } from '@/components/app-sidebar'
 
 const articleSchema = z.object({
@@ -26,7 +26,7 @@ const articleSchema = z.object({
     images: z.array(z.string().regex(/^data:image\/(jpeg|png|gif|webp);base64,/))
         .optional()
         .default([]),
-    links: z.array(z.string().url()).optional().default([])
+    links: z.array(z.string().url("Please enter a valid URL")).optional().default([])
 })
 
 type ArticleFormData = z.infer<typeof articleSchema>
@@ -44,6 +44,8 @@ function AddArticle() {
     })
 
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [newLink, setNewLink] = useState("")
+    const [linkError, setLinkError] = useState("")
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || [])
@@ -78,6 +80,37 @@ function AddArticle() {
         form.setValue('images', newImages)
     }
 
+    const addLink = () => {
+        setLinkError("")
+        try {
+            if (!newLink) {
+                setLinkError("Please enter a URL")
+                return
+            }
+            const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
+            if (!urlRegex.test(newLink)) {
+                setLinkError("Please enter a valid URL")
+                return
+            }
+            let formattedLink = newLink
+            if (!/^https?:\/\//i.test(newLink)) {
+                formattedLink = `https://${newLink}`
+            }
+            
+            const currentLinks = form.getValues('links')
+            form.setValue('links', [...currentLinks, formattedLink])
+            setNewLink("")
+        } catch (error) {
+            setLinkError("Invalid URL format")
+        }
+    }
+
+    const removeLink = (index: number) => {
+        const currentLinks = form.getValues('links')
+        const newLinks = currentLinks.filter((_, i) => i !== index)
+        form.setValue('links', newLinks)
+    }
+
     async function onSubmit(data: ArticleFormData) {
         try {
             setIsSubmitting(true)
@@ -88,12 +121,12 @@ function AddArticle() {
             formData.append('description', data.description)
 
             // Append images
-            data.images?.forEach((image, index) => {
+            data.images?.forEach((image) => {
                 formData.append('images', image)
             })
 
             // Append links if any
-            data.links?.forEach((link, index) => {
+            data.links?.forEach((link) => {
                 formData.append('links', link)
             })
 
@@ -163,6 +196,63 @@ function AddArticle() {
                                             rows={3}
                                             {...field}
                                         />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="links"
+                            render={({ field }) => (
+                                <FormItem className='text-white'>
+                                    <FormLabel>Links</FormLabel>
+                                    <FormControl>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center space-x-2 w-3/4">
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Enter URL"
+                                                    value={newLink}
+                                                    onChange={(e) => setNewLink(e.target.value)}
+                                                    className="flex-1 border-[1px] border-[#353539]"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    onClick={addLink}
+                                                    className="px-3 hover:bg-white bg-transparent hover:text-black border-[1px] border-[#353539] rounded-none"
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            {linkError && (
+                                                <p className="text-red-500 text-sm">{linkError}</p>
+                                            )}
+                                            <div className="space-y-2">
+                                                {field.value.map((link, index) => (
+                                                    <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
+                                                        <a 
+                                                            href={link} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-400 hover:underline truncate max-w-md"
+                                                        >
+                                                            {link}
+                                                        </a>
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="icon"
+                                                            onClick={() => removeLink(index)}
+                                                            className="h-6 w-6"
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
