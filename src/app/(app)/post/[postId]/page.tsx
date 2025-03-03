@@ -143,57 +143,6 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
     }
   }
 
-  async function addComment(commentable_type: string) {
-    if (!session) {
-      router.push("/signin");
-      return;
-    }
-
-    if (!commentText.trim()) {
-      return;
-    }
-
-    setIsSubmittingComment(true);
-
-    try {
-      const response = await axios.post(`/api/comments/add-post-comment/${post?.id}`, { comment_text: commentText, commentable_type });
-
-      if (response.data.success) {
-        // Create a new comment object with the returned data
-        const newComment = {
-          id: response.data.data.id,
-          comment_text: response.data.data.comment_text,
-          user: {
-            name: session.user?.name || "Anonymous",
-            image: session.user?.image || null
-          }
-        };
-
-        // Update the post state with the new comment
-        setPost((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            comments: [...prev.comments, newComment],
-            _count: {
-              ...prev._count,
-              comments: prev._count.comments + 1
-            }
-          };
-        });
-
-        // Clear the comment input
-        setCommentText("");
-      }
-    } catch (error) {
-      console.error("Error while adding comment to post:", error);
-      setError("Failed to add comment. Please try again later.");
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  }
-
   if (status === "loading" || !post) {
     return (
       <div className="flex h-screen justify-center items-center w-screen bg-[#0a090f] selection:bg-white selection:text-black">
@@ -305,7 +254,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                 <span className="text-gray-400">{post._count.comments} comments</span>
               </div>
             </div>
-            
+
             <AddComment
               contentId={post.id}
               commentOn="post"
