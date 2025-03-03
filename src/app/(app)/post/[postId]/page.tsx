@@ -10,6 +10,7 @@ import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send } from "lucide-rea
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments"
+import AddComment from "@/components/AddComment";
 
 interface PostDetail {
   id: string;
@@ -304,29 +305,13 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                 <span className="text-gray-400">{post._count.comments} comments</span>
               </div>
             </div>
-
-            {/* Add Comment Section */}
-            <div className="mt-8 mb-8">
-              <h3 className="text-xl font-semibold text-white mb-4">Add Comment</h3>
-              <div className="flex flex-col space-y-3">
-                <Textarea
-                  placeholder="Write your comment here..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  className="bg-[#1a191f] border-[#353539] text-white text-lg"
-                  rows={3}
-                />
-                <Button
-                  onClick={() => addComment("Post")}
-                  disabled={isSubmittingComment || !commentText.trim()}
-                  className="flex items-center gap-2 self-end"
-                >
-                  <Send className="h-4 w-4" />
-                  Post Comment
-                </Button>
-              </div>
-              {error && <p className="text-red-500 mt-2">{error}</p>}
-            </div>
+            
+            <AddComment
+              contentId={post.id}
+              commentOn="post"
+              commentableType="Post"
+              onCommentAdded={(newComment) => setPost((prev) => prev ? { ...prev, comments: [...prev.comments, newComment] } : prev)}
+            />
             <Comments comments={post.comments} />
           </Card>
         </div>
