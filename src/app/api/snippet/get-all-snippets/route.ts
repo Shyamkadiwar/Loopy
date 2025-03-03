@@ -22,7 +22,7 @@ export async function GET(request: Request){
             include : {
                 user : {
                     select : {
-                        email : true,
+                        username : true,
                         name : true
                     }
                 },

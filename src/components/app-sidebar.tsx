@@ -24,6 +24,11 @@ const items = [
     icon: MessageCircleQuestion,
   },
   {
+    title: "Snippets",
+    path: "/snippets/all-snippets",
+    icon: Code, 
+  },
+  {
     title: "Posts",
     path: "/home",
     icon: FileText,
@@ -43,11 +48,7 @@ const items = [
     path: "/bookmark",
     icon: Bookmark,
   },
-  {
-    title: "Snippets",
-    path: "/snippets",
-    icon: Code, // Using Code icon for snippets
-  },
+  
 ]
 
 export function AppSidebar() {

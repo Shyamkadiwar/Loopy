@@ -44,7 +44,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
               select: {
                 id: true,
                 name: true,
-                email: true
+                username: true
               }
             }
           }

@@ -6,7 +6,7 @@ interface Comment {
   comment_text: string;
   user: {
     name: string;
-    image: string | null;
+    image?: string | null;
   };
 }
 

@@ -114,7 +114,7 @@ export default function AddSnippetForm() {
           description: "Snippet created successfully",
         });
         form.reset();
-        router.push(`/snippets/${response.data.data.id}`);
+        router.push(`/snippets/all-snippets`);
       } else {
         toast({
           variant: "destructive",
