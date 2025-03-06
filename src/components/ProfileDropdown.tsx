@@ -43,14 +43,14 @@ const ProfileDropdown = ({ user }: { user: any }) => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-[#0a090f] border border-[#353539] shadow-lg rounded-lg overflow-hidden">
           <button
-            onClick={() => router.push("/profile")}
+            onClick={() => router.push(`/user/${user?.id}`)}
             className="flex items-center gap-2 px-4 py-4 text-white hover:bg-white hover:text-black w-full text-left"
           >
             <User size={16} />
             View Profile
           </button>
           <button
-            onClick={() => router.push("/settings")}
+            onClick={() => router.push(`/user/${user.id}`)}
             className="flex items-center gap-2 px-4 py-4 text-white hover:bg-white hover:text-black w-full text-left"
           >
             <Settings size={16} />

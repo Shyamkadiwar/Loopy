@@ -21,6 +21,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
             where : {id : userId},
             select : {
                 name : true,
+                username : true,
                 email : true,
                 image : true,
                 bio : true,
