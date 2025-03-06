@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Image from "next/image";
+import ProfileDropdown from "@/components/ProfileDropdown";
 
 interface Post {
   id: string;
@@ -86,9 +88,12 @@ export default function Home() {
               aria-label="Search posts"
             />
           </div>
+          <div className="flex justify-center items-center gap-10">
           <Button onClick={() => router.push('/add/add-post')} className="text-white">
             Create Post
           </Button>
+          <ProfileDropdown user={session?.user} />
+          </div>
         </div>
 
         {/* Posts List */}

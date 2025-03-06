@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments";
 import AddComment from "@/components/AddComment";
+import { Input } from "@/components/ui/input";
+import ProfileDropdown from "@/components/ProfileDropdown";
 
 interface ArticleDetail {
   id: string;
@@ -146,13 +148,29 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
 
   return (
     <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
+
       <AppSidebar />
       <div className="flex-1 overflow-y-auto">
+        <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
+          <div className="relative w-1/3">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
+            <Input
+              type="text"
+              placeholder="Search"
+              className="pl-10 text-lg border-[1px] border-[#353539] text-white"
+              aria-label="Search posts"
+            />
+          </div>
+          <div className="flex justify-center items-center gap-10">
+            <Button onClick={() => router.back()} variant="ghost" className="text-white text-sm flex items-center gap-2 border-[#353539] border-[1px]">
+              <ArrowLeft className="h-5 w-5" />
+              Back to articles
+            </Button>
+            <ProfileDropdown user={session?.user} />
+          </div>
+        </div>
         <div className="max-w-4xl mx-auto py-6 px-4">
-          <Button onClick={() => router.back()} variant="ghost" className="text-white text-sm mb-6 flex items-center gap-2 border-[#353539] border-[1px]">
-            <ArrowLeft className="h-5 w-5" />
-            Back to articles
-          </Button>
+
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
@@ -232,7 +250,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
               </div>
             </div>
 
-            
+
             <AddComment
               contentId={article.id}
               commentOn="article"

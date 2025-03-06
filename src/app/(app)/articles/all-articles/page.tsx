@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import ProfileDropdown from "@/components/ProfileDropdown";
 
 interface article {
   id: string;
@@ -83,12 +84,15 @@ export default function Home() {
               type="text"
               placeholder="Search"
               className="pl-10 text-lg border-[1px] border-[#353539] text-white"
-              aria-label="Search articles"
+              aria-label="Search posts"
             />
           </div>
-          <Button onClick={() => router.push('/add/add-article')} className="text-white">
-            Create Article
+          <div className="flex justify-center items-center gap-10">
+          <Button onClick={() => router.push('/add/add-post')} className="text-white">
+            Create Post
           </Button>
+          <ProfileDropdown user={session?.user} />
+          </div>
         </div>
 
         {/* articles List */}

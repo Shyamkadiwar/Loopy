@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import ProfileDropdown from "@/components/ProfileDropdown";
 
 interface Tag {
   id: string;
@@ -102,16 +103,17 @@ export default function Snippets() {
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
             <Input
               type="text"
-              placeholder="Search snippets"
+              placeholder="Search"
               className="pl-10 text-lg border-[1px] border-[#353539] text-white"
-              aria-label="Search snippets"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search posts"
             />
           </div>
-          <Button onClick={() => router.push('/add/add-snippet')} className="text-white">
-            Add Snippet
+          <div className="flex justify-center items-center gap-10">
+          <Button onClick={() => router.push('/add/add-post')} className="text-white">
+            Create Snippet
           </Button>
+          <ProfileDropdown user={session?.user} />
+          </div>
         </div>
 
         {/* Snippets List */}
