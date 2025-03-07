@@ -50,6 +50,81 @@ export async function GET(request: Request, {params} : {params : {userId : strin
             );
         }
         const { _count, ...userInfo } = userDetails;
+
+        const snippets = await prisma.snippet.findMany({
+            where: { user_id: userId },
+            orderBy: { created_at: 'desc' },
+            include: {
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                },
+                _count: {
+                    select: {
+                        comments: true
+                    }
+                }
+            }
+        });
+        
+        const questions = await prisma.question.findMany({
+            where: { user_id: userId },
+            orderBy: { created_at: 'desc' },
+            include: {
+                _count: {
+                    select: {
+                        answers: true,
+                        comments: true
+                    }
+                }
+            }
+        });
+        
+        const answers = await prisma.answer.findMany({
+            where: { user_id: userId },
+            orderBy: { created_at: 'desc' },
+            include: {
+                question: {
+                    select: {
+                        id: true,
+                        title: true
+                    }
+                },
+                _count: {
+                    select: {
+                        votes: true,
+                        comments: true
+                    }
+                }
+            }
+        });
+        
+        const posts = await prisma.post.findMany({
+            where: { user_id: userId },
+            orderBy: { created_at: 'desc' },
+            include: {
+                _count: {
+                    select: {
+                        comments: true,
+                        votes: true
+                    }
+                }
+            }
+        });
+        
+        const articles = await prisma.article.findMany({
+            where: { user_id: userId },
+            orderBy: { created_at: 'desc' },
+            include: {
+                _count: {
+                    select: {
+                        comments: true,
+                        votes: true
+                    }
+                }
+            }
+        });
     
         return new Response(
             JSON.stringify({
@@ -62,6 +137,13 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                     comments: _count.comments,
                     answers: _count.answers,
                     questions: _count.questions
+                },
+                content:{
+                    snippets,
+                    answers,
+                    questions,
+                    posts,
+                    articles
                 }
             }
             }),

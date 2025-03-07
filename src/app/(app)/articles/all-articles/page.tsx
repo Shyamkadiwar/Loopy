@@ -88,8 +88,8 @@ export default function Home() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-post')} className="text-white">
-            Create Post
+          <Button onClick={() => router.push('/add/add-article')} className="text-white">
+            Create Article
           </Button>
           <ProfileDropdown user={session?.user} />
           </div>
