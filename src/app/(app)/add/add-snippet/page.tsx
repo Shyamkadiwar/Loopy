@@ -266,8 +266,8 @@ export default function AddSnippetForm() {
                       )}
                       <div className="space-y-2">
                         {field.value.map((tag, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
-                            <span className="text-white truncate max-w-md">
+                          <div key={index} className="flex items-center w-min justify-between p-2 bg-white rounded-full">
+                            <span className="text-black truncate max-w-md pl-1">
                               {tag}
                             </span>
                             <Button
@@ -275,9 +275,9 @@ export default function AddSnippetForm() {
                               variant="destructive"
                               size="icon"
                               onClick={() => removeTag(index)}
-                              className="h-6 w-6"
+                              className="h-6 w-6 bg-transparent hover:bg-gray-200"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-4 w-4 font-black text-black" />
                             </Button>
                           </div>
                         ))}

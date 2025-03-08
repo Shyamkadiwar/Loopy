@@ -109,7 +109,7 @@ export default function Snippets() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-post')} className="text-white">
+          <Button onClick={() => router.push('/add/add-snippet')} className="text-white">
             Create Snippet
           </Button>
           <ProfileDropdown user={session?.user} />

@@ -34,7 +34,9 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                         snippets: true,
                         comments: true,
                         answers: true,
-                        questions: true
+                        questions: true,
+                        articles: true,
+                        posts: true,
                     }
                 }
             }
@@ -136,7 +138,9 @@ export async function GET(request: Request, {params} : {params : {userId : strin
                     snippets: _count.snippets,
                     comments: _count.comments,
                     answers: _count.answers,
-                    questions: _count.questions
+                    questions: _count.questions,
+                    articles: _count.articles,
+                    posts: _count.posts
                 },
                 content:{
                     snippets,
