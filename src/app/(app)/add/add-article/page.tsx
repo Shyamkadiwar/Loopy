@@ -14,11 +14,14 @@ import {
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, Plus, X } from 'lucide-react'
+import { Loader2, Plus, Search, X } from 'lucide-react'
 import { AppSidebar } from '@/components/app-sidebar'
+import ProfileDropdown from '@/components/ProfileDropdown'
+import { useSession, signOut } from "next-auth/react";
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 const articleSchema = z.object({
     title: z.string().min(3, "Minimum 3 character required"),
@@ -32,6 +35,8 @@ const articleSchema = z.object({
 type ArticleFormData = z.infer<typeof articleSchema>
 
 function AddArticle() {
+    const router = useRouter();
+    const { data: session, status } = useSession();
     const { toast } = useToast()
     const form = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
@@ -96,7 +101,7 @@ function AddArticle() {
             if (!/^https?:\/\//i.test(newLink)) {
                 formattedLink = `https://${newLink}`
             }
-            
+
             const currentLinks = form.getValues('links')
             form.setValue('links', [...currentLinks, formattedLink])
             setNewLink("")
@@ -158,165 +163,192 @@ function AddArticle() {
     return (
         <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
             <AppSidebar />
-            <div className="w-full max-w-2xl mx-auto p-4 space-y-6">
-                <div className="space-y-2 mt-4">
-                    <h1 className="text-2xl font-bold text-white">Create articles</h1>
+
+            <div className="w-full flex flex-col h-screen">
+                {/* Header with search and profile - unchanged */}
+                <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
+                    <div className="relative w-1/3">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
+                        <Input
+                            type="text"
+                            placeholder="Search"
+                            className="pl-10 text-lg border-[1px] border-[#353539] text-white"
+                            aria-label="Search posts"
+                        />
+                    </div>
+                    <div className="flex justify-center items-center gap-10">
+                        <Button onClick={() => router.push('/add/add-article')} className="text-white">
+                            Create Article
+                        </Button>
+                        <ProfileDropdown user={session?.user} />
+                    </div>
                 </div>
+                
+                {/* form section */}
+                <div className="flex-1 flex justify-center items-start overflow-y-auto">
+                    <div className="w-full max-w-3xl px-4 py-6">
+                        <div className="space-y-2 mb-6">
+                            <h1 className="text-2xl font-bold text-white text-center">Create Articles</h1>
+                        </div>
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem className='text-white w-3/4'>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Enter article title"
-                                            {...field}
-                                            className='border-[1px] border-[#353539]'
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem className='text-white'>
-                                    <FormLabel>Description</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Enter article description"
-                                            className="w-3/4 border-[1px] border-[#353539]"
-                                            rows={3}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="links"
-                            render={({ field }) => (
-                                <FormItem className='text-white'>
-                                    <FormLabel>Links</FormLabel>
-                                    <FormControl>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center space-x-2 w-3/4">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="title"
+                                    render={({ field }) => (
+                                        <FormItem className='text-white w-full'>
+                                            <FormLabel>Title</FormLabel>
+                                            <FormControl>
                                                 <Input
-                                                    type="text"
-                                                    placeholder="Enter URL"
-                                                    value={newLink}
-                                                    onChange={(e) => setNewLink(e.target.value)}
-                                                    className="flex-1 border-[1px] border-[#353539]"
+                                                    placeholder="Enter article title"
+                                                    {...field}
+                                                    className='border-[1px] border-[#353539]'
                                                 />
-                                                <Button
-                                                    type="button"
-                                                    onClick={addLink}
-                                                    className="px-3 hover:bg-white bg-transparent hover:text-black border-[1px] border-[#353539] rounded-none"
-                                                >
-                                                    <Plus className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                            {linkError && (
-                                                <p className="text-red-500 text-sm">{linkError}</p>
-                                            )}
-                                            <div className="space-y-2">
-                                                {field.value.map((link, index) => (
-                                                    <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
-                                                        <a 
-                                                            href={link} 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer"
-                                                            className="text-blue-400 hover:underline truncate max-w-md"
-                                                        >
-                                                            {link}
-                                                        </a>
-                                                        <Button
-                                                            type="button"
-                                                            variant="destructive"
-                                                            size="icon"
-                                                            onClick={() => removeLink(index)}
-                                                            className="h-6 w-6"
-                                                        >
-                                                            <X className="h-3 w-3" />
-                                                        </Button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                        <FormField
-                            control={form.control}
-                            name="images"
-                            render={({ field }) => (
-                                <FormItem className='text-white'>
-                                    <FormLabel>Images</FormLabel>
-                                    <FormControl>
-                                        <div className="space-y-4">
-                                            <Input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                onChange={handleImageChange}
-                                                className="cursor-pointer w-3/4 border-[1px] border-[#353539]"
-                                            />
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {field.value.map((image, index) => (
-                                                    <div key={index} className="relative aspect-video">
-                                                        <img
-                                                            src={image}
-                                                            alt={`Preview ${index + 1}`}
-                                                            className="object-cover rounded-lg w-full h-full"
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem className='text-white'>
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Enter article description"
+                                                    className="w-full border-[1px] border-[#353539]"
+                                                    rows={3}
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="links"
+                                    render={({ field }) => (
+                                        <FormItem className='text-white'>
+                                            <FormLabel>Links</FormLabel>
+                                            <FormControl>
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center space-x-2 w-full">
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Enter URL"
+                                                            value={newLink}
+                                                            onChange={(e) => setNewLink(e.target.value)}
+                                                            className="flex-1 border-[1px] border-[#353539]"
                                                         />
                                                         <Button
                                                             type="button"
-                                                            variant="destructive"
-                                                            size="icon"
-                                                            className="absolute top-2 right-2"
-                                                            onClick={() => removeImage(index)}
+                                                            onClick={addLink}
+                                                            className="px-3 hover:bg-white bg-transparent hover:text-black border-[1px] border-[#353539] rounded-none"
                                                         >
-                                                            <X className="h-4 w-4" />
+                                                            <Plus className="h-4 w-4" />
                                                         </Button>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                                    {linkError && (
+                                                        <p className="text-red-500 text-sm">{linkError}</p>
+                                                    )}
+                                                    <div className="space-y-2">
+                                                        {field.value.map((link, index) => (
+                                                            <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded">
+                                                                <a
+                                                                    href={link}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-blue-400 hover:underline truncate max-w-md"
+                                                                >
+                                                                    {link}
+                                                                </a>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="destructive"
+                                                                    size="icon"
+                                                                    onClick={() => removeLink(index)}
+                                                                    className="h-6 w-6"
+                                                                >
+                                                                    <X className="h-3 w-3" />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-1/4 hover:bg-white bg-transparent hover:text-black h-10 text-lg border-[1px] border-[#353539] rounded-none"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Creating...
-                                </>
-                            ) : (
-                                'Create Article'
-                            )}
-                        </Button>
-                    </form>
-                </Form>
+                                <FormField
+                                    control={form.control}
+                                    name="images"
+                                    render={({ field }) => (
+                                        <FormItem className='text-white'>
+                                            <FormLabel>Images</FormLabel>
+                                            <FormControl>
+                                                <div className="space-y-4">
+                                                    <Input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        onChange={handleImageChange}
+                                                        className="cursor-pointer w-full border-[1px] border-[#353539]"
+                                                    />
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        {field.value.map((image, index) => (
+                                                            <div key={index} className="relative aspect-video">
+                                                                <img
+                                                                    src={image}
+                                                                    alt={`Preview ${index + 1}`}
+                                                                    className="object-cover rounded-lg w-full h-full"
+                                                                />
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="destructive"
+                                                                    size="icon"
+                                                                    className="absolute top-2 right-2"
+                                                                    onClick={() => removeImage(index)}
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="flex justify-center">
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-1/2 hover:bg-white bg-transparent hover:text-black h-10 text-lg border-[1px] border-[#353539] rounded-none"
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Creating...
+                                            </>
+                                        ) : (
+                                            'Create Article'
+                                        )}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    </div>
+                </div>
             </div>
         </div>
     )

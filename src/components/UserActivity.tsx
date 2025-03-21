@@ -91,7 +91,7 @@ const UserActivity = ({ userId, allContent }: UserActivityProps) => {
 
     const navigateToContent = (contentId: string, contentType: string) => {
         const routeMap: Record<string, string> = {
-            posts: '/posts/post',
+            posts: '/post/',
             answers: '/questions/question',
             questions: '/questions/question',
             snippets: '/snippets/snippet',
