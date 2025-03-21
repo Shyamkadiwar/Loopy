@@ -15,7 +15,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
             );
         }
     
-        const userId = params.userId
+        const userId = await params.userId
     
         const userDetails = await prisma.user.findUnique({
             where : {id : userId},
