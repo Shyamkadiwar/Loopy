@@ -36,7 +36,7 @@ export default function Home() {
       <Navbar />
 
       {/* main */}
-      <div className="bg-[#0a090f] text-white selection:bg-white selection:text-black">
+      <div className="bg-[#0a090f] text-white selection:bg-white selection:text-black overflow-hidden">
 
         {/* hero */}
         <div className="relative bg-[#0a090f] w-screen h-screen">
