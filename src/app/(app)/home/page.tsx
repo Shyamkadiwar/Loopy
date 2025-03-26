@@ -11,11 +11,13 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import ProfileDropdown from "@/components/ProfileDropdown";
+import Link from "next/link";
 
 interface Post {
   id: string;
   title: string;
   user: {
+    id: string;
     name: string;
     email: string;
     username: string;
@@ -89,10 +91,10 @@ export default function Home() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-post')} className="text-white">
-            Create Post
-          </Button>
-          <ProfileDropdown user={session?.user} />
+            <Button onClick={() => router.push('/add/add-post')} className="text-white">
+              Create Post
+            </Button>
+            <ProfileDropdown user={session?.user} />
           </div>
         </div>
 
@@ -105,18 +107,25 @@ export default function Home() {
               <Card
                 key={post.id}
                 className="p-4 border-0 bg-[#0a090f] rounded-none border-b-[1px] border-[#353539] hover:border-[#4b4b52] cursor-pointer transition-colors"
-                onClick={() => handlePostClick(post.id)}
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('a')) {
+                    handlePostClick(post.id);
+                  }
+                }}
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-2">
-                    {/* <img src={post.user.image} alt="User avatar" /> */}
-                    <p className="text-white font-space-grotesk">@{post.user.username}</p>
+                    <Link 
+                      href={`/user/${post.user.id}`} 
+                      className="text-white font-space-grotesk"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      @{post.user.username}
+                    </Link>
                     <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
                   </div>
                   <div className="ml-4">
-                    {/* <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2">
-                      {post.title}
-                    </h1> */}
                     <p className="text-base text-gray-400 line-clamp-2 font-space-grotesk">
                       {post.description}
                     </p>
@@ -138,8 +147,6 @@ export default function Home() {
                   )}
 
                   <div className="ml-4 flex items-center justify-between mt-2 pb-10">
-
-
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
                         <MessageSquare className="h-5 w-5 text-gray-400" />

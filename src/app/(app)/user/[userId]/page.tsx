@@ -14,6 +14,7 @@ import UserActivity from "@/components/UserActivity";
 import UserProfileCard from "@/components/UserProfileCard";
 
 interface UserDetail {
+    id: string;
     name: string;
     username: string;
     email: string;
@@ -80,6 +81,7 @@ export default function UserProfile({ params }: { params: { userId: string } }) 
             if (response.data.success) {
                 const userData = response.data.data;
                 setUser({
+                    id: userData.id,
                     name: userData.name,
                     username: userData.username,
                     email: userData.email,
@@ -130,6 +132,9 @@ export default function UserProfile({ params }: { params: { userId: string } }) 
         );
     }
 
+    // Check if the current user is the profile owner
+    const isProfileOwner = session?.user?.id === user?.id;
+
     return (
         <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
             <AppSidebar />
@@ -151,8 +156,11 @@ export default function UserProfile({ params }: { params: { userId: string } }) 
                 <div className="max-w-4xl mx-auto py-6 px-4">
                     {user && (
                         <Card className="p-6 border-0 bg-[#0a090f]">
-                            {/* Using the new UserProfileCard component */}
-                            <UserProfileCard user={user} />
+                            {/* Pass isProfileOwner to UserProfileCard */}
+                            <UserProfileCard 
+                                user={user} 
+                                isProfileOwner={isProfileOwner} 
+                            />
                             
                             {/* UserActivity Component */}
                             {allContent && (

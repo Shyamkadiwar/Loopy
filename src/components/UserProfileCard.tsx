@@ -25,9 +25,14 @@ interface UserProfileCardProps {
     };
   };
   onUserUpdate?: (updatedUser: any) => void;
+  isProfileOwner?: boolean; // Add this prop
 }
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUserUpdate }) => {
+const UserProfileCard: React.FC<UserProfileCardProps> = ({ 
+  user, 
+  onUserUpdate, 
+  isProfileOwner = false // Default to false if not provided
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -230,7 +235,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUserUpdate })
                 Reputation Points:{" "}
                 <span className="font-bold">{user.reputation_points}</span>
               </p>
-
             </div>
           </div>
 
@@ -241,7 +245,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUserUpdate })
             </p>
           </div>
 
-          {/* Intrest Section */}
+          {/* Interest Section */}
           <div className="rounded-lg mt-4">
             <p className="text-white mb-2">
               Interest:{" "}
@@ -257,8 +261,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUserUpdate })
               : <p className="text-gray-400 text-sm">N/A</p>
             }
             </div>
-            
-
           </div>
 
           {/* Links Section */}
@@ -296,10 +298,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user, onUserUpdate })
 
           <div className="border-b-[1px] border-[#353539] pt-4 pb-4"></div>
 
-          {/* Edit Button */}
-          <div className="pt-4 flex justify-end">
-            <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
-          </div>
+          {/* Conditionally render Edit Button */}
+          {isProfileOwner && (
+            <div className="pt-4 flex justify-end">
+              <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+            </div>
+          )}
         </>
       )}
     </div>

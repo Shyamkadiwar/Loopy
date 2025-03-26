@@ -20,6 +20,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
         const userDetails = await prisma.user.findUnique({
             where : {id : userId},
             select : {
+                id : true,
                 name : true,
                 username : true,
                 email : true,
