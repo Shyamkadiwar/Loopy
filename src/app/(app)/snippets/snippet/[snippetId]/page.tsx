@@ -14,6 +14,7 @@ import Comments from "@/components/Comments";
 import AddComment from "@/components/AddComment";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -38,7 +39,7 @@ interface SnippetDetail {
   description: string;
   code: string;
   language: string;
-  user: { name: string; username: string };
+  user: { id: string; name: string; username: string };
   tags: Tag[];
   comments: Comment[];
   created_at: string;
@@ -122,7 +123,7 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
     <div className="flex h-screen w-screen bg-[#0a090f]">
       <AppSidebar />
       <div className="flex-1 overflow-y-auto">
-      <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
+        <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
           <div className="relative w-1/3">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
             <Input
@@ -143,9 +144,16 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
         <div className="max-w-4xl mx-auto py-6 px-4">
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
-            <div className="pb-4">
-              <p className="text-sm text-gray-400">@{snippet.user.username}</p>
-              <p className="text-sm text-gray-400">{new Date(snippet.created_at).toLocaleDateString()}</p>
+            <div className="flex gap-3 mb-6">
+              <Link
+                href={`/user/${snippet.user.id}`}
+                className="text-white text-sm font-space-grotesk"
+                onClick={(e) => e.stopPropagation()}
+              >
+                @{snippet.user.username}
+              </Link>
+              <p className="text-sm text-gray-400">{snippet.user.name}</p>
+              {/* <p className="text-sm text-gray-400">{new Date(snippet.created_at).toLocaleDateString()}</p> */}
             </div>
 
             <h1 className="text-white text-2xl">{snippet.title}</h1>

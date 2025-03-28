@@ -22,6 +22,7 @@ export async function GET(request : Request, {params}: {params : {questionId : s
             include : {
                 user : {
                     select : {
+                        id : true,
                         username : true,
                         name : true
                     }
@@ -30,6 +31,7 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                     include : {
                         user : {
                             select : {
+                                id : true,
                                 name : true,
                                 username : true,
                                 image : true,

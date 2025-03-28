@@ -1,4 +1,5 @@
 import { ThumbsDown, ThumbsUp } from 'lucide-react';
+import Link from 'next/link';
 import React from 'react';
 
 interface Comment {
@@ -6,6 +7,8 @@ interface Comment {
   comment_text: string;
   user: {
     name: string;
+    id: string;
+    username: string;
     image?: string | null;
   };
 }
@@ -20,7 +23,7 @@ const Comments: React.FC<CommentsProps> = ({ comments }) => {
       <h3 className="text-xl font-semibold text-white mb-4">Comments</h3>
       <div className="space-y-4">
         {comments.map((comment, index) => (
-          <div key={comment.id || `comment-${index}`}  className="py-6 border-b border-[#353539]">
+          <div key={comment.id || `comment-${index}`} className="py-6 border-b border-[#353539]">
             <div className="flex gap-3">
               {comment.user.image ? (
                 <img
@@ -37,10 +40,16 @@ const Comments: React.FC<CommentsProps> = ({ comments }) => {
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
+                  <Link
+                    href={`/user/${comment.user.id}`}
+                    className="text-white font-space-grotesk"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    @{comment.user.username}
+                  </Link>
                   <p className="font-bold text-white">
                     {comment.user.name}
                   </p>
-                  <p className="text-gray-500 text-sm">@{comment.user.name.toLowerCase().replace(/\s/g, '')}</p>
                 </div>
                 <p className="text-white mt-1">{comment.comment_text}</p>
               </div>

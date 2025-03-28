@@ -22,6 +22,7 @@ export async function GET(request: Request, {params} : {params : {postId : strin
             include : {
                 user : {
                     select : {
+                        id : true,
                         name : true,
                         email : true,
                         username : true,
@@ -32,6 +33,8 @@ export async function GET(request: Request, {params} : {params : {postId : strin
                         comment_text : true,
                         user: {
                             select: {
+                                id: true,
+                                username: true,
                                 name: true,
                                 image: true
                             }

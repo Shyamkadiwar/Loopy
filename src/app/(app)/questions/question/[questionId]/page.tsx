@@ -14,11 +14,12 @@ import Answers from "@/components/Answers";
 import AddAnswer from "@/components/AddAnswer";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface questionDetail {
   id: string;
   title: string;
-  user: { name: string; email: string; username: string };
+  user: { name: string; email: string; username: string, id: string };
   description: string;
   images: string[];
   links: string[];
@@ -28,7 +29,7 @@ interface questionDetail {
     answer_text: string;
     images: string[];
     links: string[];
-    user: { name: string; image: string | null };
+    user: { username: string, id: string, name: string; image: string | null };
     upVoteCount: number;
     downVoteCount: number;
     created_at: string;
@@ -78,7 +79,7 @@ export default function questionDetail({ params }: { params: { questionId: strin
     setIsSubmittingComment(true);
 
     try {
-      const response = await axios.post(`/api/comments/add-comment/${question?.id}`, { 
+      const response = await axios.post(`/api/comments/add-comment/${question?.id}`, {
         comment_text: commentText,
         commentable_type: type
       });
@@ -149,7 +150,7 @@ export default function questionDetail({ params }: { params: { questionId: strin
     <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
       <AppSidebar />
       <div className="flex-1 overflow-y-auto">
-      <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
+        <div className="flex p-4 justify-between items-center border-b-[1px] border-[#353539] sticky top-0 bg-[#0a090f] z-10">
           <div className="relative w-1/3">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-6 w-6" />
             <Input
@@ -172,7 +173,13 @@ export default function questionDetail({ params }: { params: { questionId: strin
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
               <div className="flex gap-3 mb-6">
-                <p className="text-sm text-gray-400">@{question.user.username}</p>
+                <Link
+                  href={`/user/${question.user.id}`}
+                  className="text-white text-sm font-space-grotesk"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{question.user.username}
+                </Link>
                 <p className="text-sm text-gray-400">{question.user.name}</p>
               </div>
               <p className="text-sm text-gray-400">{new Date(question.created_at).toLocaleDateString()}</p>
@@ -216,22 +223,22 @@ export default function questionDetail({ params }: { params: { questionId: strin
               )}
             </div>
 
-           
-            
+
+
             {/* Divider */}
             <div className="border-t border-[#353539] my-10"></div>
-            
+
             {/* Add Answer Section */}
-            <AddAnswer 
+            <AddAnswer
               questionId={question.id}
               onAnswerAdded={handleAnswerAdded}
-              />
-            {/* Answers Section */}
-            <Answers 
-              answers={question.answers || []} 
-              questionId={question.id} 
             />
-            
+            {/* Answers Section */}
+            <Answers
+              answers={question.answers || []}
+              questionId={question.id}
+            />
+
           </Card>
         </div>
       </div>

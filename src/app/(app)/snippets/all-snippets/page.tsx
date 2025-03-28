@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
+import Link from "next/link";
 
 interface Tag {
   id: string;
@@ -36,6 +37,7 @@ interface Snippet {
   downVoteCount: number;
   created_at: string;
   user: {
+    id: string;
     name: string;
     username: string;
   };
@@ -69,7 +71,7 @@ export default function Snippets() {
     router.push(`/snippets/snippet/${snippetId}`);
   };
 
-  const filteredSnippets = snippets.filter((snippet) => 
+  const filteredSnippets = snippets.filter((snippet) =>
     snippet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     snippet.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     snippet.tags.some(tag => tag.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -86,7 +88,7 @@ export default function Snippets() {
   if (!session) {
     return (
       <div className="flex h-screen justify-center items-center w-screen bg-[#0a090f] selection:bg-white selection:text-black">
-        <p className="text-white text-xl">
+        <p className="text-white text-xl text-center">
           You are not signed in. Please sign in first.
         </p>
       </div>
@@ -109,10 +111,10 @@ export default function Snippets() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-snippet')} className="text-white">
-            Create Snippet
-          </Button>
-          <ProfileDropdown user={session?.user} />
+            <Button onClick={() => router.push('/add/add-snippet')} className="text-white">
+              Create Snippet
+            </Button>
+            <ProfileDropdown user={session?.user} />
           </div>
         </div>
 
@@ -129,13 +131,19 @@ export default function Snippets() {
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4">
-                    <p className="text-muted-foreground text-white font-space-grotesk">@{snippet.user.username}</p>
+                    <Link
+                      href={`/user/${snippet.user.id}`}
+                      className="text-white text-sm font-space-grotesk"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      @{snippet.user.username}
+                    </Link>
                     <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
                     <p className="text-sm text-gray-400 font-space-grotesk ml-auto">
                       {new Date(snippet.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  
+
                   <div>
                     <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2 pl-4">
                       {snippet.title}
@@ -158,8 +166,8 @@ export default function Snippets() {
                   {snippet.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 pl-4">
                       {snippet.tags.map((tag) => (
-                        <span 
-                          key={tag.id} 
+                        <span
+                          key={tag.id}
                           className="bg-white text-black text-base font-semibold px-3 py-1 rounded-full"
                         >
                           {tag.name}

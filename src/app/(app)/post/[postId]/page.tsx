@@ -13,10 +13,12 @@ import Comments from "@/components/Comments"
 import AddComment from "@/components/AddComment";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface PostDetail {
   id: string;
   user: {
+    id : string;
     name: string;
     email: string;
     username: string;
@@ -28,6 +30,8 @@ interface PostDetail {
     id: string;
     comment_text: string;
     user: {
+      id: string;
+      username : string;
       name: string;
       image: string | null;
     };
@@ -185,8 +189,14 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             {/* Post Header */}
             <div className="pb-4">
-              <div className="flex gap-3 mb-6">
-                <p className="text-sm text-gray-400">@{post.user.username}</p>
+              <div className="flex gap-3 mb-6 item-center">
+                <Link
+                  href={`/user/${post.user.id}`}
+                  className="text-white text-sm font-space-grotesk"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{post.user.username}
+                </Link>
                 <p className="text-sm text-gray-400">{post.user.name}</p>
               </div>
               <div className="flex items-center justify-between">

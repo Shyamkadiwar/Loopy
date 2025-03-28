@@ -10,11 +10,13 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
+import Link from "next/link";
 
 interface question {
   id: string;
   title: string;
   user: {
+    id: true;
     name: string;
     email: string;
     username: string;
@@ -105,12 +107,23 @@ export default function Home() {
               <Card
                 key={question.id}
                 className="p-4 border-0 bg-[#0a090f] rounded-none border-b-[1px] border-[#353539] hover:border-[#4b4b52] cursor-pointer transition-colors"
-                onClick={() => handlequestionClick(question.id)}
+                onClick={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (!target.closest('a')) {
+                    handlequestionClick(question.id);
+                  }
+                }}
               >
                 <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                       {/* <img src={question.user.image} alt="User avatar" /> */}
-                      <p className="text-muted-foreground text-white font-space-grotesk">@{question.user.username}</p>
+                      <Link
+                      href={`/user/${question.user.id}`} 
+                      className="text-white font-space-grotesk"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      @{question.user.username}
+                    </Link>
                       <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
                     </div>
                   <div>

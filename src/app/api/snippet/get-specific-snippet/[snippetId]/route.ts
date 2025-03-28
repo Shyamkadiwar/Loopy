@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: { params: { snippetId: s
             where: { id: snippetId, visibility: "public" },
             include: {
                 user: {
-                    select: { username: true, name: true }
+                    select: { id : true, username: true, name: true }
                 },
                 tags: {
                     include: { tag: true }

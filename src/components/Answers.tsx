@@ -8,6 +8,7 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface AnswerProps {
   answers: {
@@ -16,6 +17,8 @@ interface AnswerProps {
     images: string[];
     links: string[];
     user: {
+      id: string;
+      username: string;
       name: string;
       image: string | null;
     };
@@ -60,12 +63,12 @@ export default function Answers({ answers, questionId }: AnswerProps) {
 
     try {
       const currentVote = userVotes[answerId];
-      
+
       if (currentVote === newVoteType) {
         // Remove vote if clicking the same type
         const response = await axios.delete(`/api/vote/remove-answer-vote/${answerId}`);
         if (response.data.success) {
-          setLocalAnswers(prev => 
+          setLocalAnswers(prev =>
             prev.map(answer => {
               if (answer.id === answerId) {
                 return {
@@ -90,7 +93,7 @@ export default function Answers({ answers, questionId }: AnswerProps) {
         });
 
         if (response.data.success) {
-          setLocalAnswers(prev => 
+          setLocalAnswers(prev =>
             prev.map(answer => {
               if (answer.id === answerId) {
                 let upCount = answer.upVoteCount;
@@ -142,7 +145,7 @@ export default function Answers({ answers, questionId }: AnswerProps) {
   return (
     <div className="space-y-6 mt-8">
       <h2 className="text-xl font-semibold text-white">{localAnswers.length} Answer{localAnswers.length !== 1 ? 's' : ''}</h2>
-      
+
       {localAnswers.map((answer) => (
         <Card key={answer.id} className="border-b-[1px] bg-transparent border-[#353539] p-6">
           <div className="flex items-start space-x-4">
@@ -152,13 +155,20 @@ export default function Answers({ answers, questionId }: AnswerProps) {
             </Avatar>
             <div className="flex-1">
               <div className="flex justify-between items-center mb-2">
+                <Link
+                  href={`/user/${answer.user.id}`}
+                  className="text-white font-space-grotesk"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{answer.user.username}
+                </Link>
                 <h3 className="font-medium text-white">{answer.user.name}</h3>
                 <p className="text-sm text-gray-400">{new Date(answer.created_at).toLocaleDateString()}</p>
               </div>
-              
+
               <div className="space-y-4">
                 <p className="text-white whitespace-pre-wrap">{answer.answer_text}</p>
-                
+
                 {/* Display images if available */}
                 {answer.images && answer.images.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -173,7 +183,7 @@ export default function Answers({ answers, questionId }: AnswerProps) {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Display links if available */}
                 {answer.links && answer.links.length > 0 && (
                   <div className="bg-[#1a191f] p-4 rounded-lg mt-4">
@@ -195,7 +205,7 @@ export default function Answers({ answers, questionId }: AnswerProps) {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-6 mt-4">
                 <Button
                   onClick={() => handleVote(answer.id, "upvote")}

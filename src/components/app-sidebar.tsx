@@ -1,6 +1,6 @@
 import { 
-  Calendar, Home, MessageCircleQuestion, 
-  FileText, Search, Users, Bookmark, Code 
+  Home, MessageCircleQuestion, 
+  Search, Users, Bookmark, Code 
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -27,11 +27,6 @@ const items = [
     title: "Snippets",
     path: "/snippets/all-snippets",
     icon: Code, 
-  },
-  {
-    title: "Posts",
-    path: "/home",
-    icon: FileText,
   },
   {
     title: "Articles",
