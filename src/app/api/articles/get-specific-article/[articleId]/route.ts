@@ -22,6 +22,7 @@ export async function GET(request: Request, {params} : {params : {articleId : st
             include : {
                 user : {
                     select : {
+                        id : true,
                         name : true,
                         email : true,
                         username : true,
@@ -32,6 +33,7 @@ export async function GET(request: Request, {params} : {params : {articleId : st
                         comment_text : true,
                         user: {
                             select: {
+                                id: true,
                                 name: true,
                                 image: true
                             }

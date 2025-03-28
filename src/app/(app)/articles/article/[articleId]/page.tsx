@@ -13,15 +13,16 @@ import Comments from "@/components/Comments";
 import AddComment from "@/components/AddComment";
 import { Input } from "@/components/ui/input";
 import ProfileDropdown from "@/components/ProfileDropdown";
+import Link from "next/link";
 
 interface ArticleDetail {
   id: string;
   title: string;
-  user: { name: string; email: string; username: string };
+  user: { id: string; name: string; email: string; username: string };
   description: string;
   images: string[];
   links: string[];
-  comments: { comment_text: string; user: { name: string; image: string | null } }[];
+  comments: { comment_text: string; user: { id : string, username:string; name: string; image: string | null } }[];
   _count: { comments: number };
   upVoteCount: number;
   downVoteCount: number;
@@ -175,7 +176,13 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
               <div className="flex gap-3 mb-6">
-                <p className="text-sm text-gray-400">@{article.user.username}</p>
+                <Link
+                  href={`/user/${article.user.id}`}
+                  className="text-white text-sm font-space-grotesk"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{article.user.username}
+                </Link>
                 <p className="text-sm text-gray-400">{article.user.name}</p>
               </div>
               <p className="text-sm text-gray-400">{new Date(article.created_at).toLocaleDateString()}</p>

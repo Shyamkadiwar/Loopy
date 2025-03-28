@@ -10,11 +10,13 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
+import Link from "next/link";
 
 interface article {
   id: string;
   title: string;
   user: {
+    id: string;
     name: string;
     email: string;
     username: string;
@@ -88,10 +90,10 @@ export default function Home() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-article')} className="text-white">
-            Create Article
-          </Button>
-          <ProfileDropdown user={session?.user} />
+            <Button onClick={() => router.push('/add/add-article')} className="text-white">
+              Create Article
+            </Button>
+            <ProfileDropdown user={session?.user} />
           </div>
         </div>
 
@@ -107,11 +109,17 @@ export default function Home() {
                 onClick={() => handlearticleClick(article.id)}
               >
                 <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                      {/* <img src={article.user.image} alt="User avatar" /> */}
-                      <p className="text-muted-foreground text-white font-space-grotesk">@{article.user.username}</p>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
-                    </div>
+                  <div className="flex items-center gap-4">
+                    {/* <img src={article.user.image} alt="User avatar" /> */}
+                    <Link
+                      href={`/user/${article.user.id}`}
+                      className="text-white text-sm font-space-grotesk"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      @{article.user.username}
+                    </Link>
+                    <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                  </div>
                   <div>
                     <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2 pl-4">
                       {article.title}
@@ -123,9 +131,9 @@ export default function Home() {
 
                   {article.images && article.images.length > 0 && (
                     <div className="relative h-64 w-full overflow-hidden rounded-lg pl-4">
-                      <img 
-                        src={article.images[0]} 
-                        alt="article preview" 
+                      <img
+                        src={article.images[0]}
+                        alt="article preview"
                         className="object-cover w-full h-full"
                       />
                       {article.images.length > 1 && (
@@ -137,7 +145,7 @@ export default function Home() {
                   )}
 
                   <div className="flex items-center justify-between mt-2 pl-4">
-                    
+
 
                     <div className="flex items-center gap-6 pb-10">
                       <div className="flex items-center gap-2">
