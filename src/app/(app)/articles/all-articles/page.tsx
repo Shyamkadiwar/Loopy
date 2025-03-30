@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface article {
   id: string;
@@ -110,16 +111,22 @@ export default function Home() {
                 onClick={() => handlearticleClick(article.id)}
               >
                 <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/user/${article.user.id}`}
-                        className="text-white font-space-grotesk"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        @{article.user.username}
-                      </Link>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={article.user.image || ''} alt={article.user.name || 'User'} />
+                        <AvatarFallback>{article.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <Link
+                          href={`/user/${article.user.id}`}
+                          className="text-white font-space-grotesk"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{article.user.username}
+                        </Link>
+                        <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                      </div>
                     </div>
                     <p className="text-white text-xs">
                       {new Date(article.created_at).toLocaleDateString("en-GB", {

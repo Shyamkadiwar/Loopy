@@ -26,6 +26,7 @@ export async function GET(request: Request, {params} : {params : {articleId : st
                         name : true,
                         email : true,
                         username : true,
+                        image : true,
                     }
                 },
                 comments : {

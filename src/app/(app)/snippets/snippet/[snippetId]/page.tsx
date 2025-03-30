@@ -15,6 +15,7 @@ import AddComment from "@/components/AddComment";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -39,7 +40,7 @@ interface SnippetDetail {
   description: string;
   code: string;
   language: string;
-  user: { id: string; name: string; username: string };
+  user: { id: string; name: string; username: string, image: string };
   tags: Tag[];
   comments: Comment[];
   created_at: string;
@@ -146,14 +147,20 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
-                <Link
-                  href={`/user/${snippet.user.id}`}
-                  className="text-white font-space-grotesk"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @{snippet.user.username}
-                </Link>
-                <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={snippet.user.image || ''} alt={snippet.user.name || 'User'} />
+                  <AvatarFallback>{snippet.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <Link
+                    href={`/user/${snippet.user.id}`}
+                    className="text-white font-space-grotesk"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    @{snippet.user.username}
+                  </Link>
+                  <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+                </div>
               </div>
               <p className="text-white text-xs">
                 {new Date(snippet.created_at).toLocaleDateString("en-GB", {
@@ -164,8 +171,8 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
               </p>
             </div>
 
-            <h1 className="text-white text-2xl">{snippet.title}</h1>
-            <p className="text-white">{snippet.description}</p>
+            <h1 className="text-white text-2xl pt-10">{snippet.title}</h1>
+            <p className="text-white pt-2 pb-10">{snippet.description}</p>
 
             {/* Code Editor */}
             <div className="h-96 border border-[#353539] rounded-lg mt-4">

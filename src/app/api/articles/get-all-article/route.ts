@@ -23,6 +23,7 @@ export async function GET(request: Request) {
                         name : true,
                         email : true,
                         username : true,
+                        image : true,
                     }
                 },
                 comments : {

@@ -14,6 +14,7 @@ import AddComment from "@/components/AddComment";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface PostDetail {
   id: string;
@@ -22,6 +23,7 @@ interface PostDetail {
     name: string;
     email: string;
     username: string;
+    image: string;
   };
   description: string;
   images: string[];
@@ -189,25 +191,31 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             {/* Post Header */}
             <div className="pb-4">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/user/${post.user.id}`}
-                    className="text-white font-space-grotesk"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    @{post.user.username}
-                  </Link>
-                  <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
-                </div>
-                <p className="text-white text-xs">
-                  {new Date(post.created_at).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
+            <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={post.user.image || ''} alt={post.user.name || 'User'} />
+                        <AvatarFallback>{post.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <Link
+                          href={`/user/${post.user.id}`}
+                          className="text-white font-space-grotesk"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{post.user.username}
+                        </Link>
+                        <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                      </div>
+                    </div>
+                    <p className="text-white text-xs">
+                      {new Date(post.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
             </div>
 
             {/* Post Content */}

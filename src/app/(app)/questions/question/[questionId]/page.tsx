@@ -15,11 +15,12 @@ import AddAnswer from "@/components/AddAnswer";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface questionDetail {
   id: string;
   title: string;
-  user: { name: string; email: string; username: string, id: string };
+  user: { name: string; email: string; username: string, id: string, image: string };
   description: string;
   images: string[];
   links: string[];
@@ -172,25 +173,31 @@ export default function questionDetail({ params }: { params: { questionId: strin
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/user/${question.user.id}`}
-                    className="text-white font-space-grotesk"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    @{question.user.username}
-                  </Link>
-                  <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
-                </div>
-                <p className="text-white text-xs">
-                  {new Date(question.created_at).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
+            <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={question.user.image || ''} alt={question.user.name || 'User'} />
+                        <AvatarFallback>{question.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <Link
+                          href={`/user/${question.user.id}`}
+                          className="text-white font-space-grotesk"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{question.user.username}
+                        </Link>
+                        <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
+                      </div>
+                    </div>
+                    <p className="text-white text-xs">
+                      {new Date(question.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
             </div>
 
             <div className="space-y-6">

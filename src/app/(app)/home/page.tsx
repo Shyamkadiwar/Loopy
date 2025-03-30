@@ -12,6 +12,7 @@ import axios from "axios";
 import Image from "next/image";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Post {
   id: string;
@@ -118,14 +119,20 @@ export default function Home() {
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/user/${post.user.id}`}
-                        className="text-white font-space-grotesk"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        @{post.user.username}
-                      </Link>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={post.user.image || ''} alt={post.user.name || 'User'} />
+                        <AvatarFallback>{post.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <Link
+                          href={`/user/${post.user.id}`}
+                          className="text-white font-space-grotesk"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{post.user.username}
+                        </Link>
+                        <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                      </div>
                     </div>
                     <p className="text-white text-xs">
                       {new Date(post.created_at).toLocaleDateString("en-GB", {
@@ -135,6 +142,7 @@ export default function Home() {
                       })}
                     </p>
                   </div>
+
 
                   <div className="ml-4">
                     <p className="text-base text-gray-400 line-clamp-2 font-space-grotesk">

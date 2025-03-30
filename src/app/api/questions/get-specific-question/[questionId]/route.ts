@@ -24,7 +24,8 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                     select : {
                         id : true,
                         username : true,
-                        name : true
+                        name : true,
+                        image : true,
                     }
                 },
                 answers : {

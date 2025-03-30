@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Tag {
   id: string;
@@ -40,6 +41,7 @@ interface Snippet {
     id: string;
     name: string;
     username: string;
+    image : string;
   };
   tags: Tag[];
   comments: Comment[];
@@ -130,16 +132,22 @@ export default function Snippets() {
                 onClick={() => handleSnippetClick(snippet.id)}
               >
                 <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/user/${snippet.user.id}`}
-                        className="text-white font-space-grotesk"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        @{snippet.user.username}
-                      </Link>
-                      <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={snippet.user.image || ''} alt={snippet.user.name || 'User'} />
+                        <AvatarFallback>{snippet.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <Link
+                          href={`/user/${snippet.user.id}`}
+                          className="text-white font-space-grotesk"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          @{snippet.user.username}
+                        </Link>
+                        <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+                      </div>
                     </div>
                     <p className="text-white text-xs">
                       {new Date(snippet.created_at).toLocaleDateString("en-GB", {
