@@ -30,6 +30,7 @@ interface Post {
   _count: {
     comments: number;
   };
+  created_at: Date;
 }
 
 export default function Home() {
@@ -115,16 +116,26 @@ export default function Home() {
                 }}
               >
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-2">
-                    <Link 
-                      href={`/user/${post.user.id}`} 
-                      className="text-white font-space-grotesk"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      @{post.user.username}
-                    </Link>
-                    <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/user/${post.user.id}`}
+                        className="text-white font-space-grotesk"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{post.user.username}
+                      </Link>
+                      <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
+                    </div>
+                    <p className="text-white text-xs">
+                      {new Date(post.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
+
                   <div className="ml-4">
                     <p className="text-base text-gray-400 line-clamp-2 font-space-grotesk">
                       {post.description}

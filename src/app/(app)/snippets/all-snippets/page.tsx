@@ -130,17 +130,23 @@ export default function Snippets() {
                 onClick={() => handleSnippetClick(snippet.id)}
               >
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4">
-                    <Link
-                      href={`/user/${snippet.user.id}`}
-                      className="text-white text-sm font-space-grotesk"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      @{snippet.user.username}
-                    </Link>
-                    <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
-                    <p className="text-sm text-gray-400 font-space-grotesk ml-auto">
-                      {new Date(snippet.created_at).toLocaleDateString()}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/user/${snippet.user.id}`}
+                        className="text-white font-space-grotesk"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{snippet.user.username}
+                      </Link>
+                      <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+                    </div>
+                    <p className="text-white text-xs">
+                      {new Date(snippet.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </p>
                   </div>
 

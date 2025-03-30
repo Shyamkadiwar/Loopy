@@ -29,6 +29,7 @@ interface article {
   _count: {
     comments: number;
   };
+  created_at: Date;
 }
 
 export default function Home() {
@@ -109,16 +110,24 @@ export default function Home() {
                 onClick={() => handlearticleClick(article.id)}
               >
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4">
-                    {/* <img src={article.user.image} alt="User avatar" /> */}
-                    <Link
-                      href={`/user/${article.user.id}`}
-                      className="text-white text-sm font-space-grotesk"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      @{article.user.username}
-                    </Link>
-                    <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/user/${article.user.id}`}
+                        className="text-white font-space-grotesk"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{article.user.username}
+                      </Link>
+                      <p className="text-sm text-gray-400 font-space-grotesk">{article.user.name}</p>
+                    </div>
+                    <p className="text-white text-xs">
+                      {new Date(article.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
                   <div>
                     <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2 pl-4">

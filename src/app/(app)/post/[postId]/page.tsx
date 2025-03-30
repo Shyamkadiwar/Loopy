@@ -18,7 +18,7 @@ import Link from "next/link";
 interface PostDetail {
   id: string;
   user: {
-    id : string;
+    id: string;
     name: string;
     email: string;
     username: string;
@@ -31,7 +31,7 @@ interface PostDetail {
     comment_text: string;
     user: {
       id: string;
-      username : string;
+      username: string;
       name: string;
       image: string | null;
     };
@@ -189,21 +189,23 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             {/* Post Header */}
             <div className="pb-4">
-              <div className="flex gap-3 mb-6 item-center">
-                <Link
-                  href={`/user/${post.user.id}`}
-                  className="text-white text-sm font-space-grotesk"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @{post.user.username}
-                </Link>
-                <p className="text-sm text-gray-400">{post.user.name}</p>
-              </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
+                  <Link
+                    href={`/user/${post.user.id}`}
+                    className="text-white font-space-grotesk"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    @{post.user.username}
+                  </Link>
+                  <p className="text-sm text-gray-400 font-space-grotesk">{post.user.name}</p>
                 </div>
-                <p className="text-sm text-gray-400">
-                  {new Date(post.created_at).toLocaleDateString()}
+                <p className="text-white text-xs">
+                  {new Date(post.created_at).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
             </div>

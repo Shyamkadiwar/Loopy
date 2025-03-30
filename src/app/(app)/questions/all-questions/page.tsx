@@ -30,6 +30,7 @@ interface question {
   _count: {
     comments: number;
   };
+  created_at: Date;
 }
 
 export default function Home() {
@@ -91,10 +92,10 @@ export default function Home() {
             />
           </div>
           <div className="flex justify-center items-center gap-10">
-          <Button onClick={() => router.push('/add/add-question')} className="text-white">
-            Ask Question
-          </Button>
-          <ProfileDropdown user={session?.user} />
+            <Button onClick={() => router.push('/add/add-question')} className="text-white">
+              Ask Question
+            </Button>
+            <ProfileDropdown user={session?.user} />
           </div>
         </div>
 
@@ -115,17 +116,25 @@ export default function Home() {
                 }}
               >
                 <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                      {/* <img src={question.user.image} alt="User avatar" /> */}
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
                       <Link
-                      href={`/user/${question.user.id}`} 
-                      className="text-white font-space-grotesk"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      @{question.user.username}
-                    </Link>
+                        href={`/user/${question.user.id}`}
+                        className="text-white font-space-grotesk"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        @{question.user.username}
+                      </Link>
                       <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
                     </div>
+                    <p className="text-white text-xs">
+                      {new Date(question.created_at).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
                   <div>
                     <h1 className="text-xl font-semibold font-space-grotesk text-white mb-2 pl-4">
                       {question.title}
@@ -137,9 +146,9 @@ export default function Home() {
 
                   {question.images && question.images.length > 0 && (
                     <div className="relative h-64 w-full overflow-hidden rounded-lg pl-4">
-                      <img 
-                        src={question.images[0]} 
-                        alt="question preview" 
+                      <img
+                        src={question.images[0]}
+                        alt="question preview"
                         className="object-cover w-full h-full"
                       />
                       {question.images.length > 1 && (
@@ -151,7 +160,7 @@ export default function Home() {
                   )}
 
                   <div className="flex items-center justify-between mt-2 pl-4">
-                    
+
 
                     <div className="flex items-center gap-6 pb-10">
                       <div className="flex items-center gap-2">

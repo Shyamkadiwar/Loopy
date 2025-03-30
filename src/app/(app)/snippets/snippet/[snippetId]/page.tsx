@@ -144,16 +144,24 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
         <div className="max-w-4xl mx-auto py-6 px-4">
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
-            <div className="flex gap-3 mb-6">
-              <Link
-                href={`/user/${snippet.user.id}`}
-                className="text-white text-sm font-space-grotesk"
-                onClick={(e) => e.stopPropagation()}
-              >
-                @{snippet.user.username}
-              </Link>
-              <p className="text-sm text-gray-400">{snippet.user.name}</p>
-              {/* <p className="text-sm text-gray-400">{new Date(snippet.created_at).toLocaleDateString()}</p> */}
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/user/${snippet.user.id}`}
+                  className="text-white font-space-grotesk"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{snippet.user.username}
+                </Link>
+                <p className="text-sm text-gray-400 font-space-grotesk">{snippet.user.name}</p>
+              </div>
+              <p className="text-white text-xs">
+                {new Date(snippet.created_at).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
             </div>
 
             <h1 className="text-white text-2xl">{snippet.title}</h1>

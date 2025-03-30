@@ -172,17 +172,25 @@ export default function questionDetail({ params }: { params: { questionId: strin
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
-              <div className="flex gap-3 mb-6">
-                <Link
-                  href={`/user/${question.user.id}`}
-                  className="text-white text-sm font-space-grotesk"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @{question.user.username}
-                </Link>
-                <p className="text-sm text-gray-400">{question.user.name}</p>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/user/${question.user.id}`}
+                    className="text-white font-space-grotesk"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    @{question.user.username}
+                  </Link>
+                  <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
+                </div>
+                <p className="text-white text-xs">
+                  {new Date(question.created_at).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
               </div>
-              <p className="text-sm text-gray-400">{new Date(question.created_at).toLocaleDateString()}</p>
             </div>
 
             <div className="space-y-6">
