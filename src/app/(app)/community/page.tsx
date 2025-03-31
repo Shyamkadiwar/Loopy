@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 
 function Community() {
     const { data: session } = useSession();
-    const isPremiumUser = false; // Replace with actual check
 
     return (
         <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
