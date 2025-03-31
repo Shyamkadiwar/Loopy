@@ -10,7 +10,7 @@ const articleSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function article(request: Request, {params} : {params : {articleId : string}}){
+export async function PATCH(request: Request, {params} : {params : {articleId : string}}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
