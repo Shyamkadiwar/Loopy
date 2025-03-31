@@ -144,7 +144,7 @@ const BookmarkPage = () => {
                             <ArrowLeft className="h-5 w-5" />
                             Back
                         </Button>
-                        <ProfileDropdown user={session?.user} />
+                        {session?.user && <ProfileDropdown user={session.user} />}
                     </div>
                 </div>
                 <div className="max-w-4xl mx-auto py-6 px-4">
