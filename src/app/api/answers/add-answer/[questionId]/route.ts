@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../auth/[...nextauth]/options";
 import { z } from 'zod'
-import { NextRequest } from "next/server";
 
 const answerSchema = z.object({
     answer_text: z.string().min(3, "Minimum 3 character required"),
@@ -10,7 +9,7 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function POST(request: NextRequest, { params }: { params: { questionId: string } }) {
+export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -22,9 +21,20 @@ export async function POST(request: NextRequest, { params }: { params: { questio
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
+        const url = new URL(request.url);
+        const questionId = url.pathname.split("/").pop();
+
+        if (!questionId) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: "Question ID is required",
+                }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
 
         const userId = session.user.id
-        const questionId = params.questionId
 
         const body = await request.json()
         const result = answerSchema.safeParse(body)
