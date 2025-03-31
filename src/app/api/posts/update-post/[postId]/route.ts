@@ -9,7 +9,7 @@ const postSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function POST(request: Request, {params} : {params : {postId : string}}){
+export async function POST(request: Request, {params} : {params : Promise<{postId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -34,7 +34,7 @@ export async function POST(request: Request, {params} : {params : {postId : stri
             );
         }
         const {description, images, links} = result.data
-        const postId = params.postId
+        const {postId} = await params
 
         const newPost = await prisma.post.update({
             where : {id : postId},

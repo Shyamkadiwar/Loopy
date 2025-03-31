@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
-export async function GET(request: Request, {params} : {params : {userId : string}}){
+export async function GET(request: Request, {params} : {params : Promise<{userId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -15,7 +15,7 @@ export async function GET(request: Request, {params} : {params : {userId : strin
             );
         }
     
-        const userId = await params.userId
+        const {userId} = await params
     
         const userDetails = await prisma.user.findUnique({
             where : {id : userId},

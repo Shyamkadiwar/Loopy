@@ -10,7 +10,7 @@ const articleSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function PATCH(request: Request, {params} : {params : {articleId : string}}){
+export async function PATCH(request: Request, {params} : {params : Promise<{articleId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -35,7 +35,7 @@ export async function PATCH(request: Request, {params} : {params : {articleId : 
             );
         }
         const {title, description, images, links} = result.data
-        const articleId = params.articleId
+        const {articleId} = await params
 
         const newArticle = await prisma.article.update({
             where : {id : articleId},

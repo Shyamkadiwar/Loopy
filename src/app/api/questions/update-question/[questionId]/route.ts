@@ -10,7 +10,7 @@ const questionSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function question(request: Request, {params} : {params : {questionId : string}}){
+export async function question(request: Request, {params} : {params : Promise<{questionId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -35,7 +35,7 @@ export async function question(request: Request, {params} : {params : {questionI
             );
         }
         const {title, description, images, links} = result.data
-        const questionId = params.questionId
+        const {questionId} = await params
 
         const newQuestion = await prisma.question.update({
             where : {id : questionId},

@@ -11,7 +11,7 @@ const snippetSchema = z.object({
     tags: z.array(z.string()).optional()
 });
 
-export async function POST(request: Request, {params} : {params : {snippetId : string}}){
+export async function POST(request: Request, {params} : {params : Promise<{snippetId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -36,7 +36,7 @@ export async function POST(request: Request, {params} : {params : {snippetId : s
             );
         }
         const {title, code, description, visibility} = result.data
-        const snippetId = params.snippetId
+        const {snippetId} = await params
 
         const newSnippet = await prisma.snippet.update({
             where : {id : snippetId},
