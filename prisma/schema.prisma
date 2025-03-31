@@ -70,6 +70,7 @@ model User {
   comments  Comment[]
   posts     Post[]
   articles  Article[]
+  bookmarks Bookmark[]
 }
 
 model Snippet {
@@ -84,6 +85,7 @@ model Snippet {
   updated_at  DateTime     @updatedAt
   tags        SnippetTag[]
   comments    Comment[]
+  bookmarks Bookmark[]
 }
 
 model Tag {
@@ -114,6 +116,7 @@ model Question {
   updated_at  DateTime  @updatedAt
   answers     Answer[]
   comments    Comment[]
+  bookmarks Bookmark[]
 }
 
 model Answer {
@@ -199,6 +202,7 @@ model Article {
   updated_at  DateTime  @updatedAt
   comments    Comment[]
   votes       Vote[]
+  bookmarks Bookmark[]
 }
 
 model Post {
@@ -213,4 +217,26 @@ model Post {
   updated_at  DateTime  @updatedAt
   comments    Comment[]
   votes       Vote[]
+  bookmarks Bookmark[]
+}
+
+model Bookmark {
+  id            String    @id @default(uuid())
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       String
+  bookmarkable_id   String
+  bookmarkable_type String // Snippet, Post, Article, Question
+  created_at    DateTime  @default(now())
+  
+  Snippet  Snippet?  @relation(fields: [snippetId], references: [id])
+  snippetId String?
+  
+  Post     Post?     @relation(fields: [postId], references: [id])
+  postId   String?
+  
+  Article  Article?  @relation(fields: [articleId], references: [id])
+  articleId String?
+  
+  Question Question? @relation(fields: [questionId], references: [id])
+  questionId String?
 }
