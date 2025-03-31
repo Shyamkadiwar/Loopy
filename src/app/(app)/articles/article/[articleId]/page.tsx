@@ -15,10 +15,7 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-
-interface ArticleDetailPageProps {
-  params: { articleId: string };
-}
+import PageProps from "next/types";
 
 interface ArticleDetail {
   id: string;
@@ -34,7 +31,11 @@ interface ArticleDetail {
   created_at: string;
 }
 
-export default function ArticleDetail({ params }: ArticleDetailPageProps) {
+export default function ArticleDetail({ 
+  params 
+}: { 
+  params: { articleId: string } 
+}) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [article, setArticle] = useState<ArticleDetail | null>(null);
