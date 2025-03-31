@@ -15,7 +15,6 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import PageProps from "next/types";
 
 interface ArticleDetail {
   id: string;
