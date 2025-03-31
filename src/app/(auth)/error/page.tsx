@@ -1,11 +1,12 @@
-// pages/auth/error.tsx
 'use client';
 
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function AuthError() {
+// Create a client component that uses useSearchParams
+function ErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
@@ -52,5 +53,24 @@ export default function AuthError() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense
+export default function AuthError() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#0a090f]">
+        <div className="mx-auto max-w-md space-y-6 p-6 bg-white/5 rounded-lg border border-white/10">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-bold tracking-tighter text-white">
+              Loading...
+            </h1>
+          </div>
+        </div>
+      </div>
+    }>
+      <ErrorContent />
+    </Suspense>
   );
 }
