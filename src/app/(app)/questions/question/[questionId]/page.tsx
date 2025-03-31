@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments";
@@ -16,6 +16,7 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "@/hooks/use-toast";
 
 interface questionDetail {
   id: string;
@@ -48,11 +49,15 @@ export default function questionDetail({ params }: { params: { questionId: strin
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState<string>("");
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
+  const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
   useEffect(() => {
     getQuestionDetail();
+    checkUserVote();
+    checkBookmarkStatus();
   }, [params.questionId]);
 
   async function getQuestionDetail() {
@@ -67,6 +72,160 @@ export default function questionDetail({ params }: { params: { questionId: strin
     } catch (error) {
       console.error("Error fetching question details:", error);
       setError("Failed to load question details. Please try again later.");
+    }
+  }
+
+  async function checkUserVote() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/vote/check/${params.questionId}`);
+      if (response.data.success) {
+        setUserVote(response.data.vote_type);
+      }
+    } catch (error) {
+      console.error("Error checking user vote:", error);
+    }
+  }
+
+  async function checkBookmarkStatus() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/bookmark/check`, {
+        params: {
+          itemId: params.questionId,
+          itemType: "question"
+        }
+      });
+      
+      setIsBookmarked(response.data.isBookmarked);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+    }
+  }
+
+  async function handleVote(questionId: string, newVoteType: "upvote" | "downvote") {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (isProcessingVote) return;
+    setIsProcessingVote(true);
+
+    try {
+      if (userVote === newVoteType) {
+        // Remove vote if clicking the same type
+        const response = await axios.delete(`/api/vote/remove-question-vote/${questionId}`);
+        if (response.data.success) {
+          setQuestion((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              upVoteCount: newVoteType === "upvote" ? prev.upVoteCount - 1 : prev.upVoteCount,
+              downVoteCount: newVoteType === "downvote" ? prev.downVoteCount - 1 : prev.downVoteCount,
+            };
+          });
+          setUserVote(null);
+        }
+      } else {
+        // Add or update vote
+        const response = await axios.post(`/api/vote/add-question-vote/${questionId}`, {
+          vote_type: newVoteType,
+          voteable_type: "Question"
+        });
+
+        if (response.data.success) {
+          setQuestion((prev) => {
+            if (!prev) return prev;
+
+            let upCount = prev.upVoteCount;
+            let downCount = prev.downVoteCount;
+
+            // Remove old vote count if exists
+            if (userVote === "upvote") upCount--;
+            if (userVote === "downvote") downCount--;
+
+            // Add new vote count
+            if (newVoteType === "upvote") upCount++;
+            if (newVoteType === "downvote") downCount++;
+
+            return {
+              ...prev,
+              upVoteCount: upCount,
+              downVoteCount: downCount,
+            };
+          });
+          setUserVote(newVoteType);
+        }
+      }
+    } catch (error) {
+      console.error("Error processing vote:", error);
+    } finally {
+      setIsProcessingVote(false);
+    }
+  }
+
+  async function handleBookmark() {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (isProcessingBookmark || !question) return;
+    setIsProcessingBookmark(true);
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const response = await axios.delete(`/api/bookmark/remove`, {
+          data: {
+            itemId: question.id,
+            itemType: "question"
+          }
+        });
+        
+        if (response.data.success) {
+          setIsBookmarked(false);
+          toast({
+            title: "Bookmark removed",
+            description: "Question removed from your bookmarks",
+          });
+        }
+      } else {
+        // Add bookmark
+        const response = await axios.post(`/api/bookmark/add-bookmark`, {
+          itemId: question.id,
+          itemType: "question"
+        });
+
+        if (response.data.success) {
+          setIsBookmarked(true);
+          toast({
+            title: "Bookmark added",
+            description: "Question added to your bookmarks",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error processing bookmark:", error);
+      
+      if (error.response?.data?.message === "Already bookmarked") {
+        toast({
+          title: "Already bookmarked",
+          description: "This question is already in your bookmarks",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to process bookmark",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsProcessingBookmark(false);
     }
   }
 
@@ -173,31 +332,31 @@ export default function questionDetail({ params }: { params: { questionId: strin
 
           <Card className="p-6 border-0 font-space-grotesk bg-[#0a090f]">
             <div className="pb-4">
-            <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={question.user.image || ''} alt={question.user.name || 'User'} />
-                        <AvatarFallback>{question.user.name?.charAt(0) || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <Link
-                          href={`/user/${question.user.id}`}
-                          className="text-white font-space-grotesk"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          @{question.user.username}
-                        </Link>
-                        <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
-                      </div>
-                    </div>
-                    <p className="text-white text-xs">
-                      {new Date(question.created_at).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={question.user.image || ''} alt={question.user.name || 'User'} />
+                    <AvatarFallback>{question.user.name?.charAt(0) || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <Link
+                      href={`/user/${question.user.id}`}
+                      className="text-white font-space-grotesk"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      @{question.user.username}
+                    </Link>
+                    <p className="text-sm text-gray-400 font-space-grotesk">{question.user.name}</p>
                   </div>
+                </div>
+                <p className="text-white text-xs">
+                  {new Date(question.created_at).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -238,7 +397,39 @@ export default function questionDetail({ params }: { params: { questionId: strin
               )}
             </div>
 
-
+            {/* Interaction Section */}
+            <div className="flex items-center justify-between mt-6 py-4">
+              <div className="flex items-center gap-6">
+                <Button
+                  onClick={() => handleVote(question.id, "upvote")}
+                  disabled={isProcessingVote}
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"}`} />
+                  <span>{question.upVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={() => handleVote(question.id, "downvote")}
+                  disabled={isProcessingVote}
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"}`} />
+                  <span>{question.downVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={handleBookmark}
+                  disabled={isProcessingBookmark}
+                  className="flex items-center gap-1"
+                  aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                >
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? "text-white fill-white" : "text-gray-400"}`} />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-400">{question._count.answers} answers</span>
+              </div>
+            </div>
 
             {/* Divider */}
             <div className="border-t border-[#353539] my-10"></div>

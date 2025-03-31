@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Code, Send, MessageSquare, Search } from "lucide-react";
+import { ArrowLeft, Copy, Code, Send, MessageSquare, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import dynamic from "next/dynamic";
@@ -16,6 +16,7 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "@/hooks/use-toast";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -54,9 +55,12 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
   const [commentText, setCommentText] = useState<string>("");
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [codeCopied, setCodeCopied] = useState<boolean>(false);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
   useEffect(() => {
     getSnippetDetail();
+    checkBookmarkStatus();
   }, [params.snippetId]);
 
   async function getSnippetDetail() {
@@ -71,6 +75,107 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
     } catch (error) {
       console.error("Error fetching snippet details:", error);
       setError("Failed to load snippet details. Please try again later.");
+    }
+  }
+
+  async function checkBookmarkStatus() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/bookmark/check`, {
+        params: {
+          itemId: params.snippetId,
+          itemType: "snippet"
+        }
+      });
+      
+      setIsBookmarked(response.data.isBookmarked);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+    }
+  }
+
+  async function handleBookmark() {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (isProcessingBookmark || !snippet) return;
+    setIsProcessingBookmark(true);
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const response = await axios.delete(`/api/bookmark/remove`, {
+          data: {
+            itemId: snippet.id,
+            itemType: "snippet"
+          }
+        });
+        
+        if (response.data.success) {
+          setIsBookmarked(false);
+          toast({
+            title: "Bookmark removed",
+            description: "Snippet removed from your bookmarks",
+          });
+        }
+      } else {
+        // Add bookmark
+        const response = await axios.post(`/api/bookmark/add-bookmark`, {
+          itemId: snippet.id,
+          itemType: "snippet"
+        });
+
+        if (response.data.success) {
+          setIsBookmarked(true);
+          toast({
+            title: "Bookmark added",
+            description: "Snippet added to your bookmarks",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error processing bookmark:", error);
+      
+      if (error.response?.data?.message === "Already bookmarked") {
+        toast({
+          title: "Already bookmarked",
+          description: "This snippet is already in your bookmarks",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to process bookmark",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsProcessingBookmark(false);
+    }
+  }
+
+  async function handleCopyCode() {
+    if (snippet?.code) {
+      try {
+        await navigator.clipboard.writeText(snippet.code);
+        setCodeCopied(true);
+        toast({
+          title: "Copied!",
+          description: "Code copied to clipboard",
+        });
+
+        setTimeout(() => setCodeCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy code:", err);
+        toast({
+          title: "Error",
+          description: "Failed to copy code to clipboard",
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -183,8 +288,27 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
                 options={{ readOnly: true, minimap: { enabled: false }, scrollBeyondLastLine: false, fontSize: 16, wordWrap: "on" }}
               />
             </div>
-            <div className="flex items-center ml-4 justify-between mt-6 py-4 ">
-
+            <div className="flex items-center justify-between mt-6 py-4">
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={handleCopyCode}
+                  className="flex items-center gap-2"
+                  variant="ghost"
+                >
+                  <Copy className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-400">{codeCopied ? "Copied!" : "Copy code"}</span>
+                </Button>
+                <Button
+                  onClick={handleBookmark}
+                  disabled={isProcessingBookmark}
+                  className="flex items-center gap-2"
+                  variant="ghost"
+                  aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                >
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? "text-white fill-white" : "text-gray-400"}`} />
+                  <span className="text-gray-400">{isBookmarked ? "Bookmarked" : "Bookmark"}</span>
+                </Button>
+              </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
                 <span className="text-gray-400">{snippet.comments.length} comments</span>

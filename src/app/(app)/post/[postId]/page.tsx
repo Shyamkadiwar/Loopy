@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments"
@@ -15,6 +15,8 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "@/hooks/use-toast";
+
 
 interface PostDetail {
   id: string;
@@ -52,13 +54,16 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [commentText, setCommentText] = useState<string>("");
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
+  const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
   useEffect(() => {
     getPostDetail();
     checkUserVote();
+    checkBookmarkStatus();
   }, [params.postId]);
 
   async function getPostDetail() {
@@ -86,6 +91,23 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
       }
     } catch (error) {
       console.error("Error checking user vote:", error);
+    }
+  }
+
+  async function checkBookmarkStatus() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/bookmark/check`, {
+        params: {
+          itemId: params.postId,
+          itemType: "post"
+        }
+      });
+      
+      setIsBookmarked(response.data.isBookmarked);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
     }
   }
 
@@ -148,6 +170,67 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
       console.error("Error processing vote:", error);
     } finally {
       setIsProcessingVote(false);
+    }
+  }
+
+  async function handleBookmark() {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (isProcessingBookmark || !post) return;
+    setIsProcessingBookmark(true);
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const response = await axios.delete(`/api/bookmark/remove`, {
+          data: {
+            itemId: post.id,
+            itemType: "post"
+          }
+        });
+        
+        if (response.data.success) {
+          setIsBookmarked(false);
+          toast({
+            title: "Bookmark removed",
+            description: "Post removed from your bookmarks",
+          });
+        }
+      } else {
+        const response = await axios.post(`/api/bookmark/add-bookmark`, {
+          itemId: post.id,
+          itemType: "post"
+        });
+
+        if (response.data.success) {
+          setIsBookmarked(true);
+          toast({
+            title: "Bookmark added",
+            description: "Post added to your bookmarks",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error processing bookmark:", error);
+      
+      if (error.response?.data?.message === "Already bookmarked") {
+        toast({
+          title: "Already bookmarked",
+          description: "This post is already in your bookmarks",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to process bookmark",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsProcessingBookmark(false);
     }
   }
 
@@ -279,6 +362,14 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
                   <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
                     }`} />
                   <span>{post.downVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={handleBookmark}
+                  disabled={isProcessingBookmark}
+                  className="flex items-center gap-1"
+                  aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                >
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? "text-white fill-white" : "text-gray-400"}`} />
                 </Button>
               </div>
               <div className="flex items-center gap-2">

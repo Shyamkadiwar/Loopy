@@ -16,18 +16,12 @@ interface ContentItem {
     title?: string;
     description?: string;
     code?: string;
-    answer_text?: string;
-    comment_text?: string;
     created_at: string;
-    tags?: Array<{tag: {name: string}}>;
+    tags?: string[];
     _count?: {
         comments?: number;
         votes?: number;
         answers?: number;
-    };
-    question?: {
-        id: string;
-        title: string;
     };
 }
 
@@ -41,6 +35,7 @@ interface BookmarkData {
 interface ApiResponse {
     success: boolean;
     data: BookmarkData;
+    message: string;
 }
 
 type ContentType = "snippets" | "posts" | "questions" | "articles";
@@ -57,20 +52,29 @@ const BookmarkPage = () => {
     const [activeTab, setActiveTab] = useState<ContentType>("snippets");
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchBookmarks();
-    }, []);
+        if (status === "authenticated") {
+            fetchBookmarks();
+        } else if (status === "unauthenticated") {
+            router.push("/login");
+        }
+    }, [status]);
 
     async function fetchBookmarks(): Promise<void> {
         setIsLoading(true);
+        setError(null);
         try {
             const response = await axios.get<ApiResponse>("/api/bookmark/get-bookmark");
             if (response.data.success) {
                 setBookmarks(response.data.data);
+            } else {
+                setError(response.data.message || "Failed to fetch bookmarks");
             }
         } catch (error) {
             console.error("Error fetching bookmarks:", error);
+            setError("An error occurred while fetching your bookmarks");
         } finally {
             setIsLoading(false);
         }
@@ -90,10 +94,34 @@ const BookmarkPage = () => {
         router.push(`${routeMap[contentType]}/${contentId}`);
     };
 
-    // Add a safety check to prevent the "Cannot read properties of undefined" error
-    const filteredBookmarks = bookmarks[activeTab] ? bookmarks[activeTab].filter(item => 
-        item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ) : [];
+    const filteredBookmarks = bookmarks[activeTab] ? bookmarks[activeTab].filter(item => {
+        const searchText = searchQuery.toLowerCase();
+        return (
+            (item.title && item.title.toLowerCase().includes(searchText)) ||
+            (item.description && item.description.toLowerCase().includes(searchText))
+        );
+    }) : [];
+
+    const renderTags = (tags?: string[]) => {
+        if (!tags || tags.length === 0) return null;
+        return (
+            <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map((tag, index) => (
+                    <span key={index} className="px-2 py-1 text-xs bg-gray-800 rounded-full text-gray-300">
+                        {tag}
+                    </span>
+                ))}
+            </div>
+        );
+    };
+
+    if (status === "loading") {
+        return (
+            <div className="flex h-screen w-screen bg-[#0a090f] justify-center items-center">
+                <p className="text-white">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen w-screen bg-[#0a090f] selection:bg-white selection:text-black">
@@ -129,6 +157,11 @@ const BookmarkPage = () => {
                                     onClick={() => handleTabChange(tab)}
                                 >
                                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                    {bookmarks[tab] && bookmarks[tab].length > 0 && (
+                                        <span className="ml-2 px-2 py-1 bg-gray-800 rounded-full text-sm">
+                                            {bookmarks[tab].length}
+                                        </span>
+                                    )}
                                 </button>
                             ))}
                         </div>
@@ -136,6 +169,16 @@ const BookmarkPage = () => {
                             {isLoading ? (
                                 <div className="flex justify-center py-10">
                                     <p className="text-white">Loading...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-10">
+                                    <p className="text-red-400">{error}</p>
+                                    <Button 
+                                        onClick={fetchBookmarks} 
+                                        className="mt-4 bg-gray-800 hover:bg-gray-700"
+                                    >
+                                        Try Again
+                                    </Button>
                                 </div>
                             ) : !bookmarks[activeTab] || bookmarks[activeTab].length === 0 ? (
                                 <div className="text-center py-10">
@@ -154,8 +197,25 @@ const BookmarkPage = () => {
                                             onClick={() => navigateToContent(item.id, activeTab)}
                                         >
                                             <h3 className="text-white font-medium">
-                                                {item.title || "Untitled"}
+                                                {item.title || (item.description ? item.description.substring(0, 50) + "..." : "Untitled")}
                                             </h3>
+                                            {item.tags && renderTags(item.tags)}
+                                            {item._count && (
+                                                <div className="mt-2 text-gray-400 text-sm flex space-x-4">
+                                                    {item._count.comments !== undefined && (
+                                                        <span>{item._count.comments} comment{item._count.comments !== 1 ? 's' : ''}</span>
+                                                    )}
+                                                    {item._count.votes !== undefined && (
+                                                        <span>{item._count.votes} vote{item._count.votes !== 1 ? 's' : ''}</span>
+                                                    )}
+                                                    {item._count.answers !== undefined && (
+                                                        <span>{item._count.answers} answer{item._count.answers !== 1 ? 's' : ''}</span>
+                                                    )}
+                                                </div>
+                                            )}
+                                            <div className="mt-2 text-gray-500 text-sm">
+                                                {new Date(item.created_at).toLocaleDateString()}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

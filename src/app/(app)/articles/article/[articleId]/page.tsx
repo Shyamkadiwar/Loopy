@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "@/hooks/use-toast";
 
 interface ArticleDetail {
   id: string;
@@ -37,12 +38,15 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
   const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState<string>("");
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
+  const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
   useEffect(() => {
     getArticleDetail();
     checkUserVote();
+    checkBookmarkStatus();
   }, [params.articleId]);
 
   async function getArticleDetail() {
@@ -70,6 +74,23 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
       }
     } catch (error) {
       console.error("Error checking user vote:", error);
+    }
+  }
+
+  async function checkBookmarkStatus() {
+    if (!session) return;
+
+    try {
+      const response = await axios.get(`/api/bookmark/check`, {
+        params: {
+          itemId: params.articleId,
+          itemType: "article"
+        }
+      });
+      
+      setIsBookmarked(response.data.isBookmarked);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
     }
   }
 
@@ -132,6 +153,68 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
       console.error("Error processing vote:", error);
     } finally {
       setIsProcessingVote(false);
+    }
+  }
+
+  async function handleBookmark() {
+    if (!session) {
+      router.push("/signin");
+      return;
+    }
+
+    if (isProcessingBookmark || !article) return;
+    setIsProcessingBookmark(true);
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const response = await axios.delete(`/api/bookmark/remove`, {
+          data: {
+            itemId: article.id,
+            itemType: "article"
+          }
+        });
+        
+        if (response.data.success) {
+          setIsBookmarked(false);
+          toast({
+            title: "Bookmark removed",
+            description: "Article removed from your bookmarks",
+          });
+        }
+      } else {
+        // Add bookmark
+        const response = await axios.post(`/api/bookmark/add-bookmark`, {
+          itemId: article.id,
+          itemType: "article"
+        });
+
+        if (response.data.success) {
+          setIsBookmarked(true);
+          toast({
+            title: "Bookmark added",
+            description: "Article added to your bookmarks",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error processing bookmark:", error);
+      
+      if (error.response?.data?.message === "Already bookmarked") {
+        toast({
+          title: "Already bookmarked",
+          description: "This article is already in your bookmarks",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to process bookmark",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsProcessingBookmark(false);
     }
   }
 
@@ -242,29 +325,31 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
             </div>
 
             <div className="flex items-center justify-between mt-6 py-4">
-              <div className="flex items-center ml-4 justify-between mt-6 py-4">
-                <div className="flex items-center gap-6">
-                  <Button
-                    onClick={() => handleVote(article.id, "upvote")}
-                    disabled={isProcessingVote}
-                    className={`flex items-center gap-1"
-                      }`}
-                  >
-                    <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"
-                      }`} />
-                    <span>{article.upVoteCount}</span>
-                  </Button>
-                  <Button
-                    onClick={() => handleVote(article.id, "downvote")}
-                    disabled={isProcessingVote}
-                    className={`flex items-center gap-1"
-                      }`}
-                  >
-                    <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"
-                      }`} />
-                    <span>{article.downVoteCount}</span>
-                  </Button>
-                </div>
+              <div className="flex items-center gap-6">
+                <Button
+                  onClick={() => handleVote(article.id, "upvote")}
+                  disabled={isProcessingVote}
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsUp className={`h-5 w-5 ${userVote === "upvote" ? "text-white fill-white" : "text-gray-400"}`} />
+                  <span>{article.upVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={() => handleVote(article.id, "downvote")}
+                  disabled={isProcessingVote}
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsDown className={`h-5 w-5 ${userVote === "downvote" ? "text-white fill-white" : "text-gray-400"}`} />
+                  <span>{article.downVoteCount}</span>
+                </Button>
+                <Button
+                  onClick={handleBookmark}
+                  disabled={isProcessingBookmark}
+                  className="flex items-center gap-1"
+                  aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                >
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? "text-white fill-white" : "text-gray-400"}`} />
+                </Button>
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
