@@ -9,7 +9,7 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function POST(request: Request, { params }: { params: { questionId: string } }) {
+export async function POST(request: Request,  context : { params: { questionId: string } }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -23,7 +23,7 @@ export async function POST(request: Request, { params }: { params: { questionId:
         }
 
         const userId = session.user.id
-        const questionId = params.questionId
+        const questionId = context.params.questionId
 
         const body = await request.json()
         const result = answerSchema.safeParse(body)
