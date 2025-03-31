@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -46,7 +47,8 @@ interface SnippetDetail {
   created_at: string;
 }
 
-export default function SnippetDetail({ params }: { params: { snippetId: string } }) {
+export default function SnippetDetail() {
+  const params = useParams<{ snippetId: string }>();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [snippet, setSnippet] = useState<SnippetDetail | null>(null);

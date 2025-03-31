@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 interface QuestionDetail {
   id: string;
@@ -50,7 +51,8 @@ interface ErrorResponse {
   }
 }
 
-export default function QuestionDetail({ params }: { params: { questionId: string } }) {
+export default function QuestionDetail() {
+  const params = useParams<{ questionId: string }>();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [question, setQuestion] = useState<QuestionDetail | null>(null);

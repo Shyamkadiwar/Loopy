@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 
 interface PostDetail {
@@ -47,7 +48,8 @@ interface PostDetail {
   created_at: string;
 }
 
-export default function PostDetail({ params }: { params: { postId: string } }) {
+export default function PostDetail() {
+  const params = useParams<{ postId: string }>();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [post, setPost] = useState<PostDetail | null>(null);

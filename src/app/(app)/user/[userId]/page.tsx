@@ -12,6 +12,7 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import { Input } from "@/components/ui/input";
 import UserActivity from "@/components/UserActivity";
 import UserProfileCard from "@/components/UserProfileCard";
+import { useParams } from "next/navigation";
 
 interface UserDetail {
     id: string;
@@ -62,7 +63,8 @@ interface UserContent {
     articles: ContentItem[];
 }
 
-export default function UserProfile({ params }: { params: { userId: string } }) {
+export default function UserProfile() {
+    const params = useParams<{ userId: string }>();
     const router = useRouter();
     const { data: session, status } = useSession();
     const [user, setUser] = useState<UserDetail | null>(null);

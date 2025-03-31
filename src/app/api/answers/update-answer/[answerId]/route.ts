@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { z } from 'zod'
+import { useParams } from "next/navigation";
 
 const answerSchema = z.object({
     answer_text: z.string().min(3, "Minimum 3 character required"),
@@ -9,8 +10,9 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function answer(request: Request, {params} : {params : {answerId : string}}){
+export async function answer(request: Request){
     try {
+        const params = useParams<{ answerId: string }>();
         const session = await getServerSession(authOptions)
         if(!session?.user){
             return new Response(
