@@ -74,6 +74,7 @@ export default function QuestionDetail({ params }: { params: { questionId: strin
         setError(null);
       } else {
         setError(response.data.message);
+        console.log(error);
       }
     } catch (error) {
       console.error("Error fetching question details:", error);

@@ -68,7 +68,7 @@ const SignInPage = () => {
         router.refresh();
       }
     }
-    catch (_) {
+    catch {
       setError('An error occurred during sign in');
     }
     finally {

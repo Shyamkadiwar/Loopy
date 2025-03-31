@@ -8,9 +8,20 @@ import { Send, Link, Image, X, Plus, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 
+interface Answer {
+  id: string;
+  answer_text: string;
+  images: string[];
+  links: string[];
+  user: { username: string, id: string, name: string; image: string | null };
+  upVoteCount: number;
+  downVoteCount: number;
+  created_at: string;
+}
+
 interface AddAnswerProps {
   questionId: string;
-  onAnswerAdded: (newAnswer: any) => void;
+  onAnswerAdded: (newAnswer: Answer) => void;
 }
 
 export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps) {
@@ -64,7 +75,7 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
     try {
       new URL(string);
       return true;
-    } catch (_) {
+    } catch{
       return false;
     }
   };
@@ -93,7 +104,7 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    } catch (_) {
+    } catch {
       setError("Failed to process images. Please try again.");
       setTimeout(() => setError(null), 3000);
     }

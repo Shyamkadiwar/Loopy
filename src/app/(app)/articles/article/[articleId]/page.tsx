@@ -30,6 +30,18 @@ interface ArticleDetail {
   created_at: string;
 }
 
+interface Comment {
+  id: string;
+  comment_text: string;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    image: string | null;
+  };
+}
+
+
 export default function ArticleDetail({ params }: { params: { articleId: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -191,9 +203,9 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
     }
     catch (error) {
       if (error instanceof Error) {
-        const errorResponse = axios.isAxiosError(error) ? 
+        const errorResponse = axios.isAxiosError(error) ?
           error.response?.data?.message : 'Unknown error';
-    
+
         if (errorResponse === "Already bookmarked") {
           toast({
             title: "Already bookmarked",
@@ -215,7 +227,7 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
         });
       }
     }
-    
+
     finally {
       setIsProcessingBookmark(false);
     }
@@ -374,11 +386,17 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
             </div>
 
 
+
             <AddComment
               contentId={article.id}
               commentOn="article"
               commentableType="Article"
-              onCommentAdded={(newComment) => setArticle((prev) => prev ? { ...prev, comments: [...prev.comments, newComment] } : prev)}
+              onCommentAdded={(newComment) =>
+                setArticle((prev) =>
+                  prev ? { ...prev, comments: [...prev.comments, newComment] } : prev
+                )
+              }
+
             />
             <Comments comments={article.comments} />
           </Card>

@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut, Settings, User } from "lucide-react";
+import { Session } from "next-auth";
 
-const ProfileDropdown = ({ user }: { user: any }) => {
+interface ProfileDropdownProps {
+  user: Session["user"];
+}
+
+const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -50,7 +55,7 @@ const ProfileDropdown = ({ user }: { user: any }) => {
             View Profile
           </button>
           <button
-            onClick={() => router.push(`/user/${user.id}`)}
+            onClick={() => router.push(`/user/${user?.id}`)}
             className="flex items-center gap-2 px-4 py-4 text-white hover:bg-white hover:text-black w-full text-left"
           >
             <Settings size={16} />

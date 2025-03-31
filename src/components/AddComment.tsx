@@ -6,11 +6,23 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+interface Comment {
+  id: string;
+  comment_text: string;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    image: string | null;
+  };
+}
+
+
 interface AddCommentProps {
   contentId: string;
   commentableType: "Snippet" | "Post" | "Article" | "Answer" | "Question";
   commentOn: "snippet" | "post" | "article" | "answer" | "question";
-  onCommentAdded: (newComment: any) => void;
+  onCommentAdded: (newComment: Comment) => void;
 }
 
 const AddComment: React.FC<AddCommentProps> = ({ contentId, commentOn, commentableType, onCommentAdded }) => {
@@ -42,8 +54,10 @@ const AddComment: React.FC<AddCommentProps> = ({ contentId, commentOn, commentab
             id: session.user?.id || '',
             name: session.user?.name || "Anonymous",
             username: session.user?.username || "user",
+            image: session.user?.image || null, 
           },
         };
+        
 
         onCommentAdded(newComment);
         setCommentText("");

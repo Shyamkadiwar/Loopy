@@ -35,7 +35,7 @@ type PostFormData = z.infer<typeof postSchema>
 
 function AddPost() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { toast } = useToast()
     const form = useForm<PostFormData>({
         resolver: zodResolver(postSchema),

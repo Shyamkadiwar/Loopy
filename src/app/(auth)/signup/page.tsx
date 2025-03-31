@@ -69,7 +69,7 @@ const SignUpPage = () => {
         message,
         isAvailable
       });
-    } catch (_) {
+    } catch {
       setUsernameStatus({
         isChecking: false,
         message: 'Error checking username',
@@ -96,7 +96,7 @@ const SignUpPage = () => {
       });
       router.push('/signin');
     }
-    catch (_) {
+    catch {
       setError('An error occurred during sign up');
       toast({
         title: "Signup Failed",
