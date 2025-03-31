@@ -28,10 +28,10 @@ interface UserProfileCardProps {
   isProfileOwner?: boolean;
 }
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({ 
-  user, 
-  onUserUpdate, 
-  isProfileOwner = false 
+const UserProfileCard: React.FC<UserProfileCardProps> = ({
+  user,
+  onUserUpdate,
+  isProfileOwner = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -177,7 +177,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
           <div>
             <label className="block text-white text-sm mb-1">
-              Links (one per line, format: "label: url")
+              Links
             </label>
             <Textarea
               name="links"
@@ -187,8 +187,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               placeholder="Link"
             />
             <p className="text-xs text-gray-400 mt-1">
-              Format example: "GitHub: https://github.com/username"
+              Format example: &quot;GitHub: https://github.com/username&quot;
             </p>
+
           </div>
 
           <div className="flex gap-2 justify-end">
@@ -249,14 +250,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             </p>
 
             <div className="flex gap-2">
-            {user.interest && user.interest.length > 0
-              ? user.interest.map((interest, index) => (
-                <p key={index} className="flex items-center w-min justify-between p-2 text-xs font-bold bg-white rounded-full">
-                  {interest}
-                </p>
-              ))
-              : <p className="text-gray-400 text-sm">N/A</p>
-            }
+              {user.interest && user.interest.length > 0
+                ? user.interest.map((interest, index) => (
+                  <p key={index} className="flex items-center w-min justify-between p-2 text-xs font-bold bg-white rounded-full">
+                    {interest}
+                  </p>
+                ))
+                : <p className="text-gray-400 text-sm">N/A</p>
+              }
             </div>
           </div>
 
