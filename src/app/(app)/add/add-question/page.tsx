@@ -148,7 +148,7 @@ function AddQuestion() {
                         <Button onClick={() => router.push('/add/add-question')} className="text-white">
                             Ask Question
                         </Button>
-                        <ProfileDropdown user={session?.user} />
+                        {session?.user && <ProfileDropdown user={session.user} />}
                     </div>
                 </div>
                 

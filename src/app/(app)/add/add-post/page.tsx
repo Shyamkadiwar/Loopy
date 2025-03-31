@@ -177,7 +177,7 @@ function AddPost() {
                         <Button onClick={() => router.push('/add/add-post')} className="text-white">
                             Create Post
                         </Button>
-                        <ProfileDropdown user={session?.user} />
+                        {session?.user && <ProfileDropdown user={session.user} />}
                     </div>
                 </div>
                 

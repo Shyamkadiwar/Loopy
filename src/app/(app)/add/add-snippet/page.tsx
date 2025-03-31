@@ -159,7 +159,7 @@ export default function AddSnippetForm() {
             <Button onClick={() => router.push('/add/add-snippet')} className="text-white">
               Create Snippet
             </Button>
-            <ProfileDropdown user={session?.user} />
+            {session?.user && <ProfileDropdown user={session.user} />}
           </div>
         </div>
         

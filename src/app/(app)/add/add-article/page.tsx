@@ -180,7 +180,7 @@ function AddArticle() {
                         <Button onClick={() => router.push('/add/add-article')} className="text-white">
                             Create Article
                         </Button>
-                        <ProfileDropdown user={session?.user} />
+                        {session?.user && <ProfileDropdown user={session.user} />}
                     </div>
                 </div>
                 
