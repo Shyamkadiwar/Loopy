@@ -37,9 +37,12 @@ interface UserActivityProps {
     allContent: UserContent | null;
 }
 
+// Define the tab type for better type safety
+type ActivityTab = 'posts' | 'comments' | 'answers' | 'questions' | 'snippets' | 'articles';
+
 const UserActivity = ({ userId, allContent }: UserActivityProps) => {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'answers' | 'questions' | 'snippets' | 'articles'>('posts');
+    const [activeTab, setActiveTab] = useState<ActivityTab>('posts');
     const [userContent, setUserContent] = useState<ContentItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -85,7 +88,7 @@ const UserActivity = ({ userId, allContent }: UserActivityProps) => {
         }
     };
 
-    const handleTabChange = (tab: 'posts' | 'comments' | 'answers' | 'questions' | 'snippets' | 'articles') => {
+    const handleTabChange = (tab: ActivityTab) => {
         setActiveTab(tab);
     };
 
@@ -102,16 +105,18 @@ const UserActivity = ({ userId, allContent }: UserActivityProps) => {
         router.push(`${basePath}/${contentId}`);
     };
 
+    const tabs: ActivityTab[] = ['posts', 'questions', 'answers', 'snippets', 'articles'];
+
     return (
         <div>
             {/* User Activity Tabs Component */}
             <div className="mt-6">
                 <div className="flex justify-between overflow-x-auto">
-                    {['posts', 'questions', 'answers', 'snippets', 'articles'].map((tab) => (
+                    {tabs.map((tab) => (
                         <button 
                             key={tab}
                             className={`px-6 py-3 text-sm font-medium ${activeTab === tab ? 'text-white border-b-2 border-white' : 'text-gray-400'}`}
-                            onClick={() => handleTabChange(tab as any)}
+                            onClick={() => handleTabChange(tab)}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>

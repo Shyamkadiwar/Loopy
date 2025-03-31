@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, Twitter, MessageCircle, Mail, Heart, Linkedin, User } from "lucide-react";
+import { Github, Twitter, Mail, Heart, Linkedin, User } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Footer = () => {

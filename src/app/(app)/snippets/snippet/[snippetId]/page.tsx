@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Code, Send, MessageSquare, Search, Bookmark } from "lucide-react";
+import { ArrowLeft, Copy, MessageSquare, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Textarea } from "@/components/ui/textarea";
 import dynamic from "next/dynamic";
 import Comments from "@/components/Comments";
 import AddComment from "@/components/AddComment";
@@ -52,8 +51,6 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
   const { data: session, status } = useSession();
   const [snippet, setSnippet] = useState<SnippetDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [commentText, setCommentText] = useState<string>("");
-  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [codeCopied, setCodeCopied] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
@@ -61,7 +58,7 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
   useEffect(() => {
     getSnippetDetail();
     checkBookmarkStatus();
-  }, [params.snippetId]);
+  }, [params.snippetId, session]);
 
   async function getSnippetDetail() {
     try {
@@ -71,6 +68,7 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
         setError(null);
       } else {
         setError(response.data.message);
+        console.log(error);
       }
     } catch (error) {
       console.error("Error fetching snippet details:", error);
@@ -136,10 +134,10 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
           });
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error processing bookmark:", error);
       
-      if (error.response?.data?.message === "Already bookmarked") {
+      if (axios.isAxiosError(error) && error.response?.data?.message === "Already bookmarked") {
         toast({
           title: "Already bookmarked",
           description: "This snippet is already in your bookmarks",
@@ -176,43 +174,6 @@ export default function SnippetDetail({ params }: { params: { snippetId: string 
           variant: "destructive"
         });
       }
-    }
-  }
-
-  async function addComment() {
-    if (!session) {
-      router.push("/signin");
-      return;
-    }
-
-    if (!commentText.trim()) return;
-    setIsSubmittingComment(true);
-
-    try {
-      const response = await axios.post(`/api/comments/add-snippet-comment/${snippet?.id}`, {
-        comment_text: commentText,
-        commentable_type: "Snippet"
-      });
-
-      if (response.data.success) {
-        const newComment = {
-          id: response.data.data.id,
-          comment_text: response.data.data.comment_text,
-          user: {
-            id: session.user?.id || '',
-            name: session.user?.name || "Anonymous",
-            username: session.user?.username || "user"
-          }
-        };
-
-        setSnippet((prev) => prev ? { ...prev, comments: [...prev.comments, newComment] } : prev);
-        setCommentText("");
-      }
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      setError("Failed to add comment. Please try again later.");
-    } finally {
-      setIsSubmittingComment(false);
     }
   }
 

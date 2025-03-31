@@ -10,6 +10,13 @@ const userSchema = z.object({
     links: z.record(z.string(), z.string()).optional(),
 });
 
+type UserUpdateData = {
+    name: string;
+    bio: string;
+    interest?: string[];
+    links?: Record<string, string>;
+};
+
 export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions)
@@ -40,7 +47,7 @@ export async function POST(request: Request) {
         const userId = session.user.id
 
         // Prepare the update data object
-        const updateData: any = {
+        const updateData : UserUpdateData = {
             name,
             bio,
         };

@@ -23,6 +23,7 @@ import { Github } from 'lucide-react';
 import { SiGoogle } from "react-icons/si";
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name should be minimum 2 characters"),
@@ -68,7 +69,7 @@ const SignUpPage = () => {
         message,
         isAvailable
       });
-    } catch (error) {
+    } catch (_) {
       setUsernameStatus({
         isChecking: false,
         message: 'Error checking username',
@@ -95,7 +96,7 @@ const SignUpPage = () => {
       });
       router.push('/signin');
     }
-    catch (err) {
+    catch (_) {
       setError('An error occurred during sign up');
       toast({
         title: "Signup Failed",
@@ -129,7 +130,7 @@ const SignUpPage = () => {
           {/* Left Section */}
           <div className="w-2/5 h-1/2 relative z-20">
             <div className="w-full border-b-[1px] border-[#4a4a50] flex hover:border-[#71717a]">
-              <a href="/"><h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></a>
+              <Link href="/"><h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></Link>
             </div>
 
             <div className="w-full pt-20">

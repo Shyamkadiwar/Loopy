@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { headers } from "next/headers";
 
 export async function GET(request : Request, {params} : {params : {userId : string}}){
     try {

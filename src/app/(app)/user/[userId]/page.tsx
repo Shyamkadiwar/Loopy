@@ -23,7 +23,7 @@ interface UserDetail {
     reputation_points: number;
     created_at: string;
     interest: string[];
-    links: any;
+    links: Record<string, string>;
     counts: {
         snippets: number;
         comments: number;

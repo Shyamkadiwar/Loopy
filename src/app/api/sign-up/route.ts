@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
-// Define the schema for request validation
 const signUpSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -10,8 +9,6 @@ const signUpSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters")
     .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and hyphens")
 });
-
-type SignUpBody = z.infer<typeof signUpSchema>;
 
 export async function POST(request: Request) {
     try {

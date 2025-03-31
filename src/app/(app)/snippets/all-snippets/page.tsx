@@ -110,6 +110,8 @@ export default function Snippets() {
               placeholder="Search"
               className="pl-10 text-lg border-[1px] border-[#353539] text-white"
               aria-label="Search posts"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex justify-center items-center gap-10">

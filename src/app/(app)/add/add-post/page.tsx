@@ -22,7 +22,6 @@ import { AppSidebar } from '@/components/app-sidebar'
 import ProfileDropdown from '@/components/ProfileDropdown'
 import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 const postSchema = z.object({
     description: z.string().min(3, "Minimum 3 character required"),

@@ -22,7 +22,6 @@ import ProfileDropdown from '@/components/ProfileDropdown'
 import { useSession} from "next-auth/react";
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 const articleSchema = z.object({
     title: z.string().min(3, "Minimum 3 character required"),

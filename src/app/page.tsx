@@ -1,8 +1,5 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { faQuoteLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
-import { any, z } from "zod"
+import { z } from "zod"
 
 const questionSchema = z.object({
     title: z.string().min(3, "Minimum 3 characters required"),

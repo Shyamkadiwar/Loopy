@@ -29,7 +29,7 @@ interface AnswerProps {
   questionId: string;
 }
 
-export default function Answers({ answers, questionId }: AnswerProps) {
+export default function Answers({ answers }: AnswerProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [userVotes, setUserVotes] = useState<Record<string, "upvote" | "downvote" | null>>({});

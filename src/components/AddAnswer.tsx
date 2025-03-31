@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Link, Image, X, Plus, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface AddAnswerProps {
@@ -16,7 +15,6 @@ interface AddAnswerProps {
 
 export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [answerText, setAnswerText] = useState<string>("");
   const [links, setLinks] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
@@ -95,7 +93,7 @@ export default function AddAnswer({ questionId, onAnswerAdded }: AddAnswerProps)
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    } catch (error) {
+    } catch (_) {
       setError("Failed to process images. Please try again.");
       setTimeout(() => setError(null), 3000);
     }

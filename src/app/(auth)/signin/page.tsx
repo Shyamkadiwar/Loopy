@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Github } from 'lucide-react';
 import { SiGoogle } from "react-icons/si";
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const signInSchema = z.object({
   login: z.string().min(1, "Email or username is required"),
@@ -67,7 +68,7 @@ const SignInPage = () => {
         router.refresh();
       }
     }
-    catch (err) {
+    catch (_) {
       setError('An error occurred during sign in');
     }
     finally {
@@ -96,7 +97,7 @@ const SignInPage = () => {
           {/* Left Section */}
           <div className="w-2/5 h-1/2 relative z-20">
             <div className="w-full border-b-[1px] border-[#4a4a50] flex hover:border-[#71717a]">
-              <a href="/" > <h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></a>
+            <Link href="/" > <h1 className="text-9xl font-extrabold m-4 font-space-grotesk pl-4">LOOPY</h1></Link>
             </div>
 
             <div className="w-full pt-20">
@@ -182,7 +183,7 @@ const SignInPage = () => {
 
               <div className='relative mt-6' onClick={() => router.push('/signup')}>
                 <p className='text-base ml-2 font-font4 font-medium text-zinc-300'>
-                  Don't have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign up</span>
+                Don&apos;t have an account? <span className="text-zinc-200 font-bold cursor-pointer">Sign up</span>
                 </p>
               </div>
             </div>

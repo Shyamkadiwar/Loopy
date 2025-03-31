@@ -35,7 +35,7 @@ const LoopyCodeDisplay = () => {
               <span className="text-gray-400">&lt;features</span> 
               <span className="text-gray-300"> name</span>
               <span className="text-gray-400">=</span>
-              <span className="text-gray-300">"Loopy"</span>
+              <span className="text-gray-300">&quot;Loopy&quot;</span>
               <span className="text-gray-400">&gt;</span>
             </div>
           </div>
@@ -44,7 +44,7 @@ const LoopyCodeDisplay = () => {
             <span className="text-gray-600">3</span>
             <div className="ml-8 group">
               <span className="text-gray-400">&lt;snippet /&gt;</span>
-              <span className="ml-2 text-gray-600">// Easily upload code snippets</span>
+              <span className="ml-2 text-gray-600">{/* Easily upload code snippets */}</span>
             </div>
           </div>
 
@@ -52,7 +52,7 @@ const LoopyCodeDisplay = () => {
             <span className="text-gray-600">4</span>
             <div className="ml-8 group">
               <span className="text-gray-400">&lt;collaborate /&gt;</span>
-              <span className="ml-2 text-gray-600">// Join developer community</span>
+              <span className="ml-2 text-gray-600">{/* Join developer community */}</span>
             </div>
           </div>
 
@@ -60,7 +60,7 @@ const LoopyCodeDisplay = () => {
             <span className="text-gray-600">5</span>
             <div className="ml-8 group">
               <span className="text-gray-400">&lt;vscode /&gt;</span>
-              <span className="ml-2 text-gray-600">// VS Code integration</span>
+              <span className="ml-2 text-gray-600">{/* VS Code integration */}</span>
             </div>
           </div>
 
@@ -68,7 +68,7 @@ const LoopyCodeDisplay = () => {
             <span className="text-gray-600">6</span>
             <div className="ml-8 group">
               <span className="text-gray-400">&lt;chat /&gt;</span>
-              <span className="ml-2 text-gray-600">// Real-time discussions</span>
+              <span className="ml-2 text-gray-600">{/* Real-time discussions */}</span>
             </div>
           </div>
 

@@ -15,7 +15,6 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import Image from "next/image";
 
 interface ArticleDetail {
   id: string;
@@ -35,47 +34,41 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
   const router = useRouter();
   const { data: session, status } = useSession();
   const [article, setArticle] = useState<ArticleDetail | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
   const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
-  useEffect(() => {
-    getArticleDetail();
-    checkUserVote();
-    checkBookmarkStatus();
-  }, [params.articleId]);
-
-  async function getArticleDetail() {
+  const getArticleDetail = async () => {
     try {
       const response = await axios.get(`/api/articles/get-specific-article/${params.articleId}`);
       if (response.data.success) {
         setArticle(response.data.data);
-        setError(null);
+        setFetchError(null);
       } else {
-        setError(response.data.message);
+        setFetchError(response.data.message);
       }
     } catch (error) {
       console.error("Error fetching article details:", error);
-      setError("Failed to load article details. Please try again later.");
+      setFetchError("Failed to load article details. Please try again later.");
     }
-  }
+  };
 
-  async function checkUserVote() {
+  const checkUserVote = async () => {
     if (!session) return;
 
     try {
       const response = await axios.get(`/api/vote/check/${params.articleId}`);
       if (response.data.success) {
-        setUserVote(response.data.vote_type); // "upvote" or "downvote"
+        setUserVote(response.data.vote_type);
       }
     } catch (error) {
       console.error("Error checking user vote:", error);
     }
-  }
+  };
 
-  async function checkBookmarkStatus() {
+  const checkBookmarkStatus = async () => {
     if (!session) return;
 
     try {
@@ -90,7 +83,13 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
     } catch (error) {
       console.error("Error checking bookmark status:", error);
     }
-  }
+  };
+
+  useEffect(() => {
+    getArticleDetail();
+    checkUserVote();
+    checkBookmarkStatus();
+  }, [params.articleId]);
 
   async function handleVote(articleId: string, newVoteType: "upvote" | "downvote") {
     if (!session) {
@@ -103,7 +102,6 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
 
     try {
       if (userVote === newVoteType) {
-        // Remove vote if clicking the same type
         const response = await axios.delete(`/api/vote/remove-article-vote/${articleId}`);
         if (response.data.success) {
           setArticle((prev) => {
@@ -117,7 +115,6 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
           setUserVote(null);
         }
       } else {
-        // Add or update vote
         const response = await axios.post(`/api/vote/add-article-vote/${articleId}`, {
           vote_type: newVoteType,
           voteable_type: "Article"
@@ -130,11 +127,9 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
             let upCount = prev.upVoteCount;
             let downCount = prev.downVoteCount;
 
-            // Remove old vote count if exists
             if (userVote === "upvote") upCount--;
             if (userVote === "downvote") downCount--;
 
-            // Add new vote count
             if (newVoteType === "upvote") upCount++;
             if (newVoteType === "downvote") downCount++;
 
@@ -165,7 +160,6 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
 
     try {
       if (isBookmarked) {
-        // Remove bookmark
         const response = await axios.delete(`/api/bookmark/remove`, {
           data: {
             itemId: article.id,
@@ -181,7 +175,6 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
           });
         }
       } else {
-        // Add bookmark
         const response = await axios.post(`/api/bookmark/add-bookmark`, {
           itemId: article.id,
           itemType: "article"
@@ -196,11 +189,12 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
         }
       }
     }
-    catch (error: unknown) {
+    catch (error) {
       if (error instanceof Error) {
-        const errorMessage = (error as any).response?.data?.message;
+        const errorResponse = axios.isAxiosError(error) ? 
+          error.response?.data?.message : 'Unknown error';
     
-        if (errorMessage === "Already bookmarked") {
+        if (errorResponse === "Already bookmarked") {
           toast({
             title: "Already bookmarked",
             description: "This article is already in your bookmarks",
@@ -238,6 +232,19 @@ export default function ArticleDetail({ params }: { params: { articleId: string 
   if (!session) {
     router.push("/signin");
     return null;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex h-screen justify-center items-center w-screen bg-[#0a090f] selection:bg-white selection:text-black">
+        <div className="text-white text-xl text-center">
+          {fetchError}
+          <Button onClick={() => router.back()} variant="outline" className="mt-4">
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

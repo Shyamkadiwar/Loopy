@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import Image from "next/image";
 
 
 interface PostDetail {
@@ -216,7 +215,7 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
       console.error("Error processing bookmark:", error);
     
       if (error instanceof Error) {
-        const errorMessage = (error as any)?.response?.data?.message; 
+        const errorMessage = (error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message; 
         if (errorMessage === "Already bookmarked") {
           toast({
             title: "Already bookmarked",
@@ -255,6 +254,15 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   if (!session) {
     router.push("/signin");
     return null;
+  }
+
+  // Display error if needed
+  if (error) {
+    return (
+      <div className="flex h-screen justify-center items-center w-screen bg-[#0a090f] selection:bg-white selection:text-black">
+        <div className="text-white text-xl text-center">{error}</div>
+      </div>
+    );
   }
 
   return (

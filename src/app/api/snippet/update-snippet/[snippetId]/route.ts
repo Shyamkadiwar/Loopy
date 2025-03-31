@@ -35,7 +35,7 @@ export async function POST(request: Request, {params} : {params : {snippetId : s
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
-        const {title, code, description, visibility, tags} = result.data
+        const {title, code, description, visibility} = result.data
         const snippetId = params.snippetId
 
         const newSnippet = await prisma.snippet.update({

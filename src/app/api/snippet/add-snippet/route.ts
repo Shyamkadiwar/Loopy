@@ -12,8 +12,6 @@ const snippetSchema = z.object({
     tags: z.array(z.string()).optional()
 });
 
-type CreateSnippetRequest = z.infer<typeof snippetSchema>;
-
 export async function POST(request: Request) {
     try {
 
@@ -29,7 +27,7 @@ export async function POST(request: Request) {
         let body;
         try {
             body = await request.json();
-        } catch (e) {
+        } catch (_) {
             return new Response(
                 JSON.stringify({
                     success: false,

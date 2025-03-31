@@ -15,9 +15,8 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import Image from "next/image";
 
-interface questionDetail {
+interface QuestionDetail {
   id: string;
   title: string;
   user: { name: string; email: string; username: string, id: string, image: string };
@@ -25,31 +24,39 @@ interface questionDetail {
   images: string[];
   links: string[];
   comments: { comment_text: string; user: { name: string; image: string | null } }[];
-  answers: {
-    id: string;
-    answer_text: string;
-    images: string[];
-    links: string[];
-    user: { username: string, id: string, name: string; image: string | null };
-    upVoteCount: number;
-    downVoteCount: number;
-    created_at: string;
-  }[];
+  answers: Answer[];
   _count: { comments: number; answers: number };
   upVoteCount: number;
   downVoteCount: number;
   created_at: string;
 }
 
+interface Answer {
+  id: string;
+  answer_text: string;
+  images: string[];
+  links: string[];
+  user: { username: string, id: string, name: string; image: string | null };
+  upVoteCount: number;
+  downVoteCount: number;
+  created_at: string;
+}
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    }
+  }
+}
+
 export default function QuestionDetail({ params }: { params: { questionId: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [question, setQuestion] = useState<questionDetail | null>(null);
+  const [question, setQuestion] = useState<QuestionDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [commentText, setCommentText] = useState<string>("");
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
-  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
   const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
@@ -212,7 +219,8 @@ export default function QuestionDetail({ params }: { params: { questionId: strin
       console.error("Error processing bookmark:", error);
     
       if (error instanceof Error) {
-        const errorMessage = (error as any)?.response?.data?.message; 
+        const errorResponse = error as ErrorResponse;
+        const errorMessage = errorResponse?.response?.data?.message; 
     
         if (errorMessage === "Already bookmarked") {
           toast({
@@ -241,7 +249,7 @@ export default function QuestionDetail({ params }: { params: { questionId: strin
     }
   }
 
-  function handleAnswerAdded(newAnswer: any) {
+  function handleAnswerAdded(newAnswer: Answer) {
     setQuestion((prev) => {
       if (!prev) return prev;
 
