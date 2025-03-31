@@ -9,7 +9,7 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function answer(request: Request, {params} : {params : Promise<{answerId : string}>}){
+export async function PATCH(request: Request, {params} : {params : Promise<{answerId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
