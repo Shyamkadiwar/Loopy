@@ -58,6 +58,12 @@ export async function GET(request : Request, {params}: {params : {questionId : s
                         },
                     }   
                 },
+                _count: {
+                    select: {
+                        comments: true,
+                        answers: true
+                    }
+                }
             }
         })
 

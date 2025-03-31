@@ -124,13 +124,12 @@ export default function AddSnippetForm() {
         });
         console.error('Error details:', response.data.errors);
       }
-    } catch (error: any) {
+    } catch{
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.response?.data?.message || "Failed to create snippet. Please try again.",
+        description:"Failed to create snippet. Please try again.",
       });
-      console.error('Submit error:', error);
     } finally {
       setIsSubmitting(false);
     }

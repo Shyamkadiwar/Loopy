@@ -22,6 +22,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import ProfileDropdown from '@/components/ProfileDropdown'
 import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const postSchema = z.object({
     description: z.string().min(3, "Minimum 3 character required"),
@@ -68,7 +69,7 @@ function AddPost() {
             const base64Images = await Promise.all(imagePromises)
             const currentImages = form.getValues('images')
             form.setValue('images', [...currentImages, ...base64Images])
-        } catch (error) {
+        } catch {
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -103,7 +104,7 @@ function AddPost() {
             const currentLinks = form.getValues('links')
             form.setValue('links', [...currentLinks, formattedLink])
             setNewLink("")
-        } catch (error) {
+        } catch {
             setLinkError("Invalid URL format")
         }
     }

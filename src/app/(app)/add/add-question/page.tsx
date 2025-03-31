@@ -17,11 +17,12 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Loader2, Plus, Search, X } from 'lucide-react'
+import { Loader2, Search, X } from 'lucide-react'
 import { AppSidebar } from '@/components/app-sidebar'
 import ProfileDropdown from '@/components/ProfileDropdown'
 import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const questionSchema = z.object({
     title: z.string().min(3, "Minimum 3 character required"),
@@ -36,7 +37,7 @@ type QuestionFormData = z.infer<typeof questionSchema>
 
 function AddQuestion() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { toast } = useToast()
     const form = useForm<QuestionFormData>({
         resolver: zodResolver(questionSchema),
@@ -68,7 +69,7 @@ function AddQuestion() {
             const base64Images = await Promise.all(imagePromises)
             const currentImages = form.getValues('images')
             form.setValue('images', [...currentImages, ...base64Images])
-        } catch (error) {
+        } catch {
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -93,12 +94,12 @@ function AddQuestion() {
             formData.append('description', data.description)
 
             // Append images
-            data.images?.forEach((image, index) => {
+            data.images?.forEach((image) => {
                 formData.append('images', image)
             })
 
             // Append links if any
-            data.links?.forEach((link, index) => {
+            data.links?.forEach((link) => {
                 formData.append('links', link)
             })
 

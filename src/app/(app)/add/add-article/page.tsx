@@ -19,9 +19,10 @@ import { useToast } from '@/hooks/use-toast'
 import { Loader2, Plus, Search, X } from 'lucide-react'
 import { AppSidebar } from '@/components/app-sidebar'
 import ProfileDropdown from '@/components/ProfileDropdown'
-import { useSession, signOut } from "next-auth/react";
+import { useSession} from "next-auth/react";
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const articleSchema = z.object({
     title: z.string().min(3, "Minimum 3 character required"),
@@ -36,7 +37,7 @@ type ArticleFormData = z.infer<typeof articleSchema>
 
 function AddArticle() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const { toast } = useToast()
     const form = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
@@ -70,7 +71,7 @@ function AddArticle() {
             const base64Images = await Promise.all(imagePromises)
             const currentImages = form.getValues('images')
             form.setValue('images', [...currentImages, ...base64Images])
-        } catch (error) {
+        } catch{
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -105,7 +106,7 @@ function AddArticle() {
             const currentLinks = form.getValues('links')
             form.setValue('links', [...currentLinks, formattedLink])
             setNewLink("")
-        } catch (error) {
+        } catch {
             setLinkError("Invalid URL format")
         }
     }

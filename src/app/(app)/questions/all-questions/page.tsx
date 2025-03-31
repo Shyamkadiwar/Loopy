@@ -1,10 +1,10 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, ThumbsUp, ThumbsDown, MessageSquare, MessageCircleQuestion } from "lucide-react";
+import { Search, ThumbsUp, ThumbsDown, MessageCircleQuestion } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import axios from "axios";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 
 interface question {
   id: string;

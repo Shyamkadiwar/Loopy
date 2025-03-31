@@ -6,9 +6,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search, Bookmark } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Textarea } from "@/components/ui/textarea";
 import Comments from "@/components/Comments"
 import AddComment from "@/components/AddComment";
 import ProfileDropdown from "@/components/ProfileDropdown";
@@ -16,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 
 interface PostDetail {
@@ -55,8 +55,6 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
-  const [commentText, setCommentText] = useState<string>("");
-  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isProcessingVote, setIsProcessingVote] = useState<boolean>(false);
   const [isProcessingBookmark, setIsProcessingBookmark] = useState<boolean>(false);
 
@@ -213,23 +211,35 @@ export default function PostDetail({ params }: { params: { postId: string } }) {
           });
         }
       }
-    } catch (error: any) {
+    }
+    catch (error: unknown) {
       console.error("Error processing bookmark:", error);
-      
-      if (error.response?.data?.message === "Already bookmarked") {
-        toast({
-          title: "Already bookmarked",
-          description: "This post is already in your bookmarks",
-          variant: "destructive"
-        });
+    
+      if (error instanceof Error) {
+        const errorMessage = (error as any)?.response?.data?.message; 
+        if (errorMessage === "Already bookmarked") {
+          toast({
+            title: "Already bookmarked",
+            description: "This post is already in your bookmarks",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to process bookmark",
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Error",
-          description: "Failed to process bookmark",
-          variant: "destructive"
+          description: "An unexpected error occurred",
+          variant: "destructive",
         });
       }
-    } finally {
+    }
+    
+    finally {
       setIsProcessingBookmark(false);
     }
   }

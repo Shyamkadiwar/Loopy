@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Send, Search, Bookmark } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ArrowLeft, Search, Bookmark } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Textarea } from "@/components/ui/textarea";
-import Comments from "@/components/Comments";
 import Answers from "@/components/Answers";
 import AddAnswer from "@/components/AddAnswer";
 import ProfileDropdown from "@/components/ProfileDropdown";
@@ -17,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface questionDetail {
   id: string;
@@ -42,7 +41,7 @@ interface questionDetail {
   created_at: string;
 }
 
-export default function questionDetail({ params }: { params: { questionId: string } }) {
+export default function QuestionDetail({ params }: { params: { questionId: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [question, setQuestion] = useState<questionDetail | null>(null);
@@ -208,73 +207,37 @@ export default function questionDetail({ params }: { params: { questionId: strin
           });
         }
       }
-    } catch (error: any) {
+    }
+    catch (error: unknown) {
       console.error("Error processing bookmark:", error);
-      
-      if (error.response?.data?.message === "Already bookmarked") {
-        toast({
-          title: "Already bookmarked",
-          description: "This question is already in your bookmarks",
-          variant: "destructive"
-        });
+    
+      if (error instanceof Error) {
+        const errorMessage = (error as any)?.response?.data?.message; 
+    
+        if (errorMessage === "Already bookmarked") {
+          toast({
+            title: "Already bookmarked",
+            description: "This post is already in your bookmarks",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to process bookmark",
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Error",
-          description: "Failed to process bookmark",
-          variant: "destructive"
+          description: "An unexpected error occurred",
+          variant: "destructive",
         });
       }
-    } finally {
+    }
+    
+    finally {
       setIsProcessingBookmark(false);
-    }
-  }
-
-  async function addComment(type: "question") {
-    if (!session) {
-      router.push("/signin");
-      return;
-    }
-
-    if (!commentText.trim()) return;
-    setIsSubmittingComment(true);
-
-    try {
-      const response = await axios.post(`/api/comments/add-comment/${question?.id}`, {
-        comment_text: commentText,
-        commentable_type: type
-      });
-
-      if (response.data.success) {
-        const newComment = {
-          id: response.data.data.id,
-          comment_text: response.data.data.comment_text,
-          user: {
-            name: session.user?.name || "Anonymous",
-            image: session.user?.image || null
-          },
-          created_at: new Date().toISOString()
-        };
-
-        setQuestion((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            comments: [...prev.comments, newComment],
-            _count: {
-              ...prev._count,
-              comments: prev._count.comments + 1
-            }
-          };
-        });
-
-        setCommentText("");
-      }
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      setError("Failed to add comment. Please try again later.");
-    } finally {
-      setIsSubmittingComment(false);
     }
   }
 
@@ -427,7 +390,7 @@ export default function questionDetail({ params }: { params: { questionId: strin
               </div>
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-400">{question._count.answers} answers</span>
+                <span className="text-gray-400">{question?._count?.answers} answers</span>
               </div>
             </div>
 
