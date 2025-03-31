@@ -8,7 +8,7 @@ const voteSchema = z.object({
     voteable_type: z.literal("Answer")
 });
 
-export async function POST(request: Request, { params }: { params: { answerId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ answerId: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -34,7 +34,7 @@ export async function POST(request: Request, { params }: { params: { answerId: s
         }
 
         const { vote_type, voteable_type } = result.data;
-        const answerId = params.answerId;
+        const {answerId} = await params;
         const userId = session.user.id;
 
         if (!answerId) {

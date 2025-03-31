@@ -8,7 +8,7 @@ const commentSchema = z.object({
     commentable_type: z.string()
 })
 
-export async function POST(request: Request, {params} : {params : {postId : string}}){
+export async function POST(request: Request, {params} : {params : Promise<{postId : string}>}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -35,7 +35,7 @@ export async function POST(request: Request, {params} : {params : {postId : stri
         }
 
         const {comment_text, commentable_type} = result.data
-        const postId = params.postId
+        const {postId} = await params
         const userId = session.user.id
 
         if(!postId){

@@ -8,7 +8,7 @@ const commentSchema = z.object({
   commentable_type: z.literal("Snippet"),
 });
 
-export async function POST(request: Request, { params }: { params: { snippetId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ snippetId: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -36,7 +36,7 @@ export async function POST(request: Request, { params }: { params: { snippetId: 
     }
 
     const { comment_text, commentable_type } = result.data;
-    const { snippetId } = params;
+    const { snippetId } = await params;
     const userId = session.user.id;
 
     if (!snippetId) {

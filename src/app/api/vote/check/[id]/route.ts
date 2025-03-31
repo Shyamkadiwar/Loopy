@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -12,10 +12,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
             });
         }
 
+        const {id} = await params
         const userVote = await prisma.vote.findFirst({
             where: {
                 user_id: session.user.id,
-                voteable_id: params.id
+                voteable_id: id
             },
             select: { vote_type: true },
         });
