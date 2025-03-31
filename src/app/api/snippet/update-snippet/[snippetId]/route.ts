@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { z } from 'zod'
-import { useParams } from "next/navigation";
 
 const snippetSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -12,9 +11,8 @@ const snippetSchema = z.object({
     tags: z.array(z.string()).optional()
 });
 
-export async function POST(request: Request){
+export async function POST(request: Request, {params} : {params : {snippetId : string}}){
     try {
-        const params = useParams<{ snippetId: string }>();
         const session = await getServerSession(authOptions)
         if(!session?.user){
             return new Response(

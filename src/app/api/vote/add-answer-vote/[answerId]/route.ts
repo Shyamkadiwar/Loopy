@@ -2,16 +2,14 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { z } from "zod";
-import { useParams } from "next/navigation";
 
 const voteSchema = z.object({
     vote_type: z.enum(["upvote", "downvote"]),
     voteable_type: z.literal("Answer")
 });
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: { answerId: string } }) {
     try {
-        const params = useParams<{ answerId: string }>();
         const session = await getServerSession(authOptions);
         if (!session?.user) {
             return new Response(

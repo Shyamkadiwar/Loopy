@@ -2,16 +2,14 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { z } from "zod"
-import { useParams } from "next/navigation";
 
 const commentSchema = z.object({
     comment_text : z.string().min(2, "Minimum 2 charcter required"),
     commentable_type: z.string()
 })
 
-export async function POST(request: Request){
+export async function POST(request: Request, {params} : {params : {postId : string}}){
     try {
-        const params = useParams<{ postId: string }>();
         const session = await getServerSession(authOptions)
         if(!session?.user){
             return new Response(
