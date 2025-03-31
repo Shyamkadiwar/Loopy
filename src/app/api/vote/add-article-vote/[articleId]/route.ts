@@ -8,7 +8,7 @@ const voteSchema = z.object({
     voteable_type: z.literal("Article")
 });
 
-export async function POST(request: Request, { params }: { params: { articleId: string } }) {
+export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -34,7 +34,8 @@ export async function POST(request: Request, { params }: { params: { articleId: 
         }
 
         const { vote_type, voteable_type } = result.data;
-        const articleId = await params.articleId;
+        const url = new URL(request.url);
+        const articleId = url.pathname.split("/").pop();
         const userId = session.user.id;
 
         if (!articleId) {

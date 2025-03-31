@@ -9,7 +9,7 @@ const postSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function POST(request: Request, {params} : {params : {postId : string}}){
+export async function POST(request: Request){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -34,7 +34,18 @@ export async function POST(request: Request, {params} : {params : {postId : stri
             );
         }
         const {description, images, links} = result.data
-        const postId = params.postId
+        const url = new URL(request.url);
+        const postId = url.pathname.split("/").pop();
+
+        if (!postId) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: "post ID is required",
+                }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
 
         const newPost = await prisma.post.update({
             where : {id : postId},

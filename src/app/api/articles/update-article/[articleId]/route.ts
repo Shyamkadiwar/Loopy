@@ -10,7 +10,7 @@ const articleSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function article(request: Request, {params} : {params : {articleId : string}}){
+export async function article(request: Request){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -35,7 +35,18 @@ export async function article(request: Request, {params} : {params : {articleId 
             );
         }
         const {title, description, images, links} = result.data
-        const articleId = params.articleId
+        const url = new URL(request.url);
+        const articleId = url.pathname.split("/").pop();
+
+        if (!articleId) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: "article ID is required",
+                }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
 
         const newArticle = await prisma.article.update({
             where : {id : articleId},

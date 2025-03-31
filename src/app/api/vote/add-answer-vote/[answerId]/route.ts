@@ -8,7 +8,7 @@ const voteSchema = z.object({
     voteable_type: z.literal("Answer")
 });
 
-export async function POST(request: Request, { params }: { params: { answerId: string } }) {
+export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -34,18 +34,19 @@ export async function POST(request: Request, { params }: { params: { answerId: s
         }
 
         const { vote_type, voteable_type } = result.data;
-        const answerId = params.answerId;
-        const userId = session.user.id;
+        const url = new URL(request.url);
+        const answerId = url.pathname.split("/").pop();
 
         if (!answerId) {
             return new Response(
                 JSON.stringify({
                     success: false,
-                    message: "Answer ID is required",
+                    message: "answer ID is required",
                 }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
+        const userId = session.user.id;
 
         // Check if user already voted on this answer
         const existingVote = await prisma.vote.findFirst({

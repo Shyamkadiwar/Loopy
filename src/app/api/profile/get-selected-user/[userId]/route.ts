@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
-export async function GET(request: Request, {params} : {params : {userId : string}}){
+export async function GET(request: Request){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -15,8 +15,19 @@ export async function GET(request: Request, {params} : {params : {userId : strin
             );
         }
     
-        const userId = await params.userId
-    
+        const url = new URL(request.url);
+        const userId = url.pathname.split("/").pop();
+
+        if (!userId) {
+            return new Response(
+                JSON.stringify({
+                    success: false,
+                    message: "post ID is required",
+                }),
+                { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+        }
+
         const userDetails = await prisma.user.findUnique({
             where : {id : userId},
             select : {

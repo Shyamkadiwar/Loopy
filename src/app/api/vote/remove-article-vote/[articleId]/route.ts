@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
-export async function DELETE(request: Request, { params }: { params: { articleId: string } }) {
+export async function DELETE(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -16,7 +16,8 @@ export async function DELETE(request: Request, { params }: { params: { articleId
         }
 
         const userId = session.user.id;
-        const articleId = params.articleId;
+        const url = new URL(request.url);
+        const articleId = url.pathname.split("/").pop();
 
         if (!articleId) {
             return new Response(
