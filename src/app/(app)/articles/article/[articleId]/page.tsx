@@ -30,18 +30,6 @@ interface ArticleDetail {
   created_at: string;
 }
 
-interface Comment {
-  id: string;
-  comment_text: string;
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    image: string | null;
-  };
-}
-
-
 export default function ArticleDetail({ params }: { params: { articleId: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();

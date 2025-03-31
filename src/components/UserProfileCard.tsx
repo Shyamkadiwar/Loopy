@@ -24,14 +24,14 @@ interface UserProfileCardProps {
       articles: number;
     };
   };
-  onUserUpdate?: (updatedUser: any) => void;
-  isProfileOwner?: boolean; // Add this prop
+  onUserUpdate?: (updatedUser: Partial<UserProfileCardProps["user"]>) => void;
+  isProfileOwner?: boolean;
 }
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({ 
   user, 
   onUserUpdate, 
-  isProfileOwner = false // Default to false if not provided
+  isProfileOwner = false 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,7 +54,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Parse links from textarea format to object
   const parseLinks = (linksText: string): Record<string, string> => {
     const result: Record<string, string> = {};
     if (!linksText.trim()) return result;
@@ -77,12 +76,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     e.preventDefault();
 
     try {
-      // Parse interests from comma-separated string to array
       const interestArray = formData.interests
         ? formData.interests.split(",").map(item => item.trim()).filter(Boolean)
         : [];
 
-      // Parse links from textarea format to object
       const linksObject = parseLinks(formData.links);
 
       const response = await fetch("/api/profile/update-user", {
@@ -121,7 +118,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -187,7 +184,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               value={formData.links}
               onChange={handleChange}
               className="bg-[#1a191f] text-white border border-[#353539]"
-              placeholder="GitHub: https://github.com/username&#10;Website: https://mywebsite.com"
+              placeholder="Link"
             />
             <p className="text-xs text-gray-400 mt-1">
               Format example: "GitHub: https://github.com/username"
