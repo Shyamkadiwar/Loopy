@@ -29,7 +29,7 @@ function Community() {
                 </div>
                 <div className="max-w-4xl pt-10 mx-auto flex items-center justify-center">
                    <div className='text-white'>
-                        <h1>This feature is only for Loopy's premium users</h1>
+                        <h1>This feature is only for Loopy premium users</h1>
                    </div>
                 </div>
             </div>
