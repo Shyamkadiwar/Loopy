@@ -30,11 +30,14 @@ interface ArticleDetail {
   created_at: string;
 }
 
-export default function ArticleDetail({ 
-  params 
-}: { 
-  params: { articleId: string } 
-}) {
+interface ArticleDetailParams {
+  params: {
+    articleId: string;
+  };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export default function ArticleDetail({ params }: ArticleDetailParams) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [article, setArticle] = useState<ArticleDetail | null>(null);
