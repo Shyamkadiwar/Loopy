@@ -9,7 +9,7 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function answer(request: Request){
+export async function answer(request: Request, {params} : {params : {answerId : string}}){
     try {
         const session = await getServerSession(authOptions)
         if(!session?.user){
@@ -34,18 +34,7 @@ export async function answer(request: Request){
             );
         }
         const {answer_text, images, links} = result.data
-        const url = new URL(request.url);
-        const answerId = url.pathname.split("/").pop();
-
-        if (!answerId) {
-            return new Response(
-                JSON.stringify({
-                    success: false,
-                    message: "Question ID is required",
-                }),
-                { status: 400, headers: { "Content-Type": "application/json" } }
-            );
-        }
+        const answerId = params.answerId
 
         const newAnswer = await prisma.answer.update({
             where : {id : answerId},

@@ -9,7 +9,7 @@ const answerSchema = z.object({
     links: z.array(z.string()).optional().default([])
 })
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: Promise<{ questionId: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -21,20 +21,9 @@ export async function POST(request: Request) {
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
-        const url = new URL(request.url);
-        const questionId = url.pathname.split("/").pop();
-
-        if (!questionId) {
-            return new Response(
-                JSON.stringify({
-                    success: false,
-                    message: "Question ID is required",
-                }),
-                { status: 400, headers: { "Content-Type": "application/json" } }
-            );
-        }
 
         const userId = session.user.id
+        const {questionId} = await params
 
         const body = await request.json()
         const result = answerSchema.safeParse(body)

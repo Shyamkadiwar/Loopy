@@ -2,7 +2,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 
-export async function GET(request: Request) {
+export async function GET(request: Request, { params }: { params: { snippetId: string } }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -12,15 +12,10 @@ export async function GET(request: Request) {
             );
         }
 
-        const url = new URL(request.url);
-        const snippetId = url.pathname.split("/").pop();
-
+        const { snippetId } = params;
         if (!snippetId) {
             return new Response(
-                JSON.stringify({
-                    success: false,
-                    message: "snippet ID is required",
-                }),
+                JSON.stringify({ success: false, message: "Snippet ID is required" }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
