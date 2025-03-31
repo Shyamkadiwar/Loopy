@@ -15,6 +15,7 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import { useParams } from "next/navigation";
 
 interface ArticleDetail {
   id: string;
@@ -30,14 +31,8 @@ interface ArticleDetail {
   created_at: string;
 }
 
-interface ArticleDetailParams {
-  params: {
-    articleId: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-export default function ArticleDetail({ params }: ArticleDetailParams) {
+export default function ArticleDetail() {
+  const params = useParams<{ articleId: string }>();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [article, setArticle] = useState<ArticleDetail | null>(null);
