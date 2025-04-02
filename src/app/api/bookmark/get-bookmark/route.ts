@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-export async function POST(request: Request) {
+
+export async function GET(request: Request) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
@@ -16,9 +17,6 @@ export async function POST(request: Request) {
 
         const { itemId, itemType } = await request.json();
         const user_id = session.user.id;
-
-        // Debug logs
-        console.log("Creating bookmark:", { user_id, itemId, itemType });
 
         // Make sure itemType is properly formatted for database lookup
         const bookmarkableType = itemType.toLowerCase();
