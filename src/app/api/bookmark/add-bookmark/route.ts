@@ -29,8 +29,8 @@ export async function POST(request: Request) {
         const existingBookmark = await prisma.bookmark.findFirst({
             where: {
                 user_id,
-                bookmarkable_id : itemId,
-                bookmarkable_type : itemType,
+                bookmarkable_id: itemId,
+                bookmarkable_type: itemType,
             },
         });
 
@@ -41,12 +41,29 @@ export async function POST(request: Request) {
             );
         }
 
+        const bookmarkData: any = {
+            user_id,
+            bookmarkable_id: itemId,
+            bookmarkable_type: itemType,
+        };
+
+        switch (itemType) {
+            case "snippet":
+                bookmarkData.snippetId = itemId;
+                break;
+            case "post":
+                bookmarkData.postId = itemId;
+                break;
+            case "question":
+                bookmarkData.questionId = itemId;
+                break;
+            case "article":
+                bookmarkData.articleId = itemId;
+                break;
+        }
+
         const bookmark = await prisma.bookmark.create({
-            data: {
-                user_id,
-                bookmarkable_id : itemId,
-                bookmarkable_type : itemType,
-            },
+            data: bookmarkData,
         });
 
         return new Response(
