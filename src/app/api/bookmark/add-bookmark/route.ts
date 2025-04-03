@@ -2,6 +2,16 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
+type BookmarkData = {
+    user_id: string;
+    bookmarkable_id: string;
+    bookmarkable_type: "article" | "post" | "snippet" | "question";
+    snippetId?: string;
+    postId?: string;
+    questionId?: string;
+    articleId?: string;
+};
+
 export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions);
@@ -18,7 +28,7 @@ export async function POST(request: Request) {
         const { itemId, itemType } = await request.json();
         const user_id = session.user.id;
 
-        const validTypes = ["article", "post", "snippet", "question"];
+        const validTypes: BookmarkData["bookmarkable_type"][] = ["article", "post", "snippet", "question"];
         if (!validTypes.includes(itemType)) {
             return new Response(
                 JSON.stringify({ success: false, message: "Invalid item type" }),
@@ -41,7 +51,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const bookmarkData: any = {
+        const bookmarkData: BookmarkData = {
             user_id,
             bookmarkable_id: itemId,
             bookmarkable_type: itemType,
